@@ -119,8 +119,8 @@ class HappyLightningModule(pl.LightningModule):
         _, predictions = torch.topk(distance, k=5, largest=False, dim=1)
         predictions = labels[predictions].tolist()
 
-        map1 = map_per_set(labels, predictions)
-        map5 = map_per_set(labels, predictions)
+        map1 = map_per_set(labels, predictions, topk=1)
+        map5 = map_per_set(labels, predictions, topk=5)
 
         self.log(f"map@1", map1, prog_bar=True, logger=False)
         self.log(f"map@5", map5, prog_bar=True, logger=False)

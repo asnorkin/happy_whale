@@ -77,7 +77,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--lr_pct_start", type=float, default=0.1)
 
         # Monitor
-        parser.add_argument("--monitor", type=str, default="rf1")
+        parser.add_argument("--monitor", type=str, default="map@5")
         parser.add_argument("--monitor_mode", type=str, default="max")
 
         # Work dir

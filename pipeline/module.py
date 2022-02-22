@@ -120,6 +120,7 @@ class HappyLightningModule(pl.LightningModule):
         map1 = map_per_set(labels, predictions)
         map5 = map_per_set(labels, predictions)
 
+        self.log(f"map@1", map1, prog_bar=True, logger=False)
         self.log(f"map@5", map5, prog_bar=True, logger=False)
         self.log(f"metrics/{stage}_map@1", map1, prog_bar=False, logger=True)
         self.log(f"metrics/{stage}_map@5", map5, prog_bar=False, logger=True)

@@ -66,9 +66,13 @@ class HappyLightningDataModule(pl.LightningDataModule):
         return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True)
 
     def val_dataloader(self):
-        return self._dataloader(self.val_dataset, self.val_sampler)
+        return self._dataloader(self.val_dataset, self.val_sampler,
+                                batch_size=self.hparams.batch_size * 2)
 
-    def _dataloader(self, dataset, batch_sampler=None, shuffle=False):
+    def _dataloader(self, dataset, batch_sampler=None, shuffle=False, batch_size=None):
+        if batch_size is None:
+            batch_size = self.hparams.batch_size
+
         params = {
             "pin_memory": True,
             "num_workers": self.hparams.num_workers,
@@ -77,7 +81,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         if batch_sampler is not None:
             params["batch_sampler"] = batch_sampler
         else:
-            params["batch_size"] = self.hparams.batch_size
+            params["batch_size"] = batch_size
             params["shuffle"] = shuffle
             params["drop_last"] = False
 

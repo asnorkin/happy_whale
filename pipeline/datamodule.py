@@ -56,7 +56,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         # General
         parser.add_argument("--num_workers", type=int, default=8)
-        parser.add_argument("--input_size", type=int, default=256)
+        parser.add_argument("--input_size", type=int, default=448)
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
 

@@ -7,7 +7,7 @@ from utils.pl_utils import (
     checkpoint_callback,
     config_args,
     lr_monitor_callback,
-    tensorboard_logger
+    wandb_logger
 )
 
 import cv2
@@ -20,7 +20,7 @@ def train(args):
     datamodule = HappyLightningDataModule(**vars(args))
     module = HappyLightningModule(**vars(args))
 
-    logger = tensorboard_logger(args)
+    logger = wandb_logger(args)
 
     callbacks = []
     ckpt_callback = checkpoint_callback(args)

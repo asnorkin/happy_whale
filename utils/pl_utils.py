@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
 
 
 class ModelConfig:
@@ -16,6 +16,10 @@ class ModelConfig:
 
 def tensorboard_logger(args) -> TensorBoardLogger:
     return TensorBoardLogger(save_dir=args.log_dir, name=args.experiment, default_hp_metric=False)
+
+
+def wandb_logger(args) -> WandbLogger:
+    return WandbLogger(name=args.experiment, project="happy_whale")
 
 
 def checkpoint_callback(args):

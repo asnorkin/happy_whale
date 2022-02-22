@@ -23,6 +23,7 @@ class HappyLightningModule(pl.LightningModule):
         self.model = HappyModel(
             model_name=self.hparams.model_name,
             num_classes=self.hparams.num_classes,
+            embedding_size=self.hparams.embedding_size,
             s=self.hparams.s,
             m=self.hparams.m,
             easy_margin=self.hparams.easy_margin,
@@ -61,7 +62,8 @@ class HappyLightningModule(pl.LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # Model
-        parser.add_argument("--model_name", type=str, default="resnet18")
+        parser.add_argument("--model_name", type=str, default="tf_efficientnet_b0_ns")
+        parser.add_argument("--embedding_size", type=int, default=512)
         parser.add_argument("--num_classes", type=int, default=15587)
 
         # Loss
@@ -73,7 +75,7 @@ class HappyLightningModule(pl.LightningModule):
         # Learning rate
         parser.add_argument("--num_epochs", type=int, default=20)
         parser.add_argument("--weight_decay", type=float, default=0.01)
-        parser.add_argument("--lr", type=float, default=1e-3)
+        parser.add_argument("--lr", type=float, default=1e-4)
         parser.add_argument("--lr_pct_start", type=float, default=0.1)
 
         # Monitor

@@ -9,8 +9,12 @@ class HappyModel(nn.Module):
                  s=30.0, m=0.5, easy_margin=False, ls_eps=0.0, **timm_kwargs):
         super().__init__()
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
-        in_features = self.model.fc.in_features
-        self.model.fc = nn.Identity()
+        if hasattr(self.model, "fc"):
+            in_features = self.model.fc.in_features
+            self.model.fc = nn.Identity()
+        else:
+            in_features = self.model.classifier.in_features
+            self.model.classifier = nn.Identity()
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()
         self.embedding = nn.Linear(in_features, embedding_size)

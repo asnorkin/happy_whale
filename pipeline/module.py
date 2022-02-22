@@ -151,5 +151,5 @@ class HappyLightningModule(pl.LightningModule):
 
         # Logs
         logs = dict()
-        logs[f"{stage}_losses/total"] = losses["total"]
+        logs[f"losses/{stage}_total"] = losses["total"]
         self.log_dict(logs, prog_bar=False, logger=True)

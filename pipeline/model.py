@@ -18,7 +18,7 @@ class HappyModel(nn.Module):
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()
         self.embedding = nn.Linear(in_features, embedding_size)
-        self.fc = ArcMarginProduct(in_features, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
+        self.fc = ArcMarginProduct(embedding_size, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
 
     def forward(self, images, labels):
         embeddings = self.embed(images)

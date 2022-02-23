@@ -1,4 +1,5 @@
 import timm
+import torch
 from torch import nn
 
 from pipeline.arcface import ArcMarginProduct, GeM
@@ -30,3 +31,22 @@ class HappyModel(nn.Module):
         pooled_features = self.pooling(features).flatten(1)
         embeddings = self.embedding(pooled_features)
         return embeddings
+
+    @classmethod
+    def from_checkpoint(cls, checkpoint_file):
+        ckpt = torch.load(checkpoint_file)
+        state_dict = {k[6:] if k.startswith("model.") else k: v for k, v in ckpt["state_dict"].items()}
+        hparams = ckpt["hyper_parameters"]
+
+        model = cls(
+            model_name=hparams["model_name"],
+            num_classes=hparams["num_classes"],
+            embedding_size=hparams["embedding_size"],
+            s=hparams["s"],
+            m=hparams["m"],
+            easy_margin=hparams["easy_margin"],
+            ls_eps=hparams["ls_eps"],
+        )
+        model.load_state_dict(state_dict)
+
+        return model

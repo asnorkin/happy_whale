@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 from copy import deepcopy
 
@@ -25,13 +26,26 @@ class HappyDataset(Dataset):
         return sample
 
     @classmethod
-    def create(cls, images_dir, labels_csv, debug=False):
+    def create(cls, images_dir, labels_csv=None, debug=False):
         items = cls.load_items(images_dir, labels_csv, debug)
         return cls(items)
 
     @classmethod
-    def load_items(cls, images_dir, labels_csv, debug=False):
-        labels_df = pd.read_csv(labels_csv)
+    def load_items(cls, images_dir, labels_csv=None, debug=False):
+        if labels_csv is not None:
+            labels_df = pd.read_csv(labels_csv)
+
+        else:
+            # Only images case
+            # Create dummy labels dataframe
+            labels_df = pd.DataFrame([{
+                "image_file": image_file,
+                "label": -1,
+                "specie": -1,
+                "class": -1,
+                "individual_id": -1,
+                "fold": -1
+            } for image_file in os.listdir(images_dir)])
 
         items, not_found = [], 0
         for i, row in enumerate(tqdm(labels_df.itertuples(), desc="Loading items", unit="item", total=len(labels_df))):

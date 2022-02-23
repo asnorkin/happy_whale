@@ -41,7 +41,7 @@ class HappyDataset(Dataset):
             labels_df = pd.DataFrame([{
                 "image": image_file,
                 "label": -1,
-                "specie": -1,
+                "species": -1,
                 "class": -1,
                 "individual_id": -1,
                 "fold": -1

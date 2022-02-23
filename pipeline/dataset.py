@@ -42,7 +42,7 @@ class HappyDataset(Dataset):
                 "image": image_file,
                 "label": -1,
                 "species": -1,
-                "class": -1,
+                "klass": -1,
                 "individual_id": -1,
                 "fold": -1
             } for image_file in os.listdir(images_dir)])

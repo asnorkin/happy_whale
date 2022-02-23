@@ -39,7 +39,7 @@ class HappyDataset(Dataset):
             # Only images case
             # Create dummy labels dataframe
             labels_df = pd.DataFrame([{
-                "image_file": image_file,
+                "image": image_file,
                 "label": -1,
                 "specie": -1,
                 "class": -1,

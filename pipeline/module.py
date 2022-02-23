@@ -115,7 +115,7 @@ class HappyLightningModule(pl.LightningModule):
         labels = _gather("labels").cpu().numpy()
 
         distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
-        distance[np.diag_indices(distance.shape[0])] = 1.
+        distance[np.diag_indices(distance.shape[0])] = 10.
         _, predictions = torch.topk(distance, k=5, largest=False, dim=1)
         predictions = labels[predictions].tolist()
 

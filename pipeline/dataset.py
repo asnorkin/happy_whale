@@ -26,9 +26,9 @@ class HappyDataset(Dataset):
         return sample
 
     @classmethod
-    def create(cls, images_dir, labels_csv=None, debug=False):
+    def create(cls, images_dir, labels_csv=None, transform=None, debug=False):
         items = cls.load_items(images_dir, labels_csv, debug)
-        return cls(items)
+        return cls(items, transform=transform)
 
     @classmethod
     def load_items(cls, images_dir, labels_csv=None, debug=False):

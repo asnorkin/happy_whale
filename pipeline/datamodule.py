@@ -35,7 +35,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
             labels_csv=self.hparams.labels_csv,
             debug=self.hparams.debug)
 
-        train_items = [item for item in items if item["fold"] == self.hparams.fold]
+        train_items = [item for item in items if item["fold"] != self.hparams.fold]
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
         # Train dataset

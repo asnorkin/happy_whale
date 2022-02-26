@@ -114,15 +114,15 @@ class HappyLightningModule(pl.LightningModule):
         embeddings = _gather("embeddings")
         labels = _gather("labels").cpu().numpy()
 
-        distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
-        distance[np.diag_indices(distance.shape[0])] = 10.
-        predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].cpu().numpy()
-        predictions = labels[predictions].tolist()
-
-        map1 = map_per_set(labels, predictions, topk=1)
-        map5 = map_per_set(labels, predictions, topk=5)
-
         if self.trainer.is_global_zero:
+            distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
+            distance[np.diag_indices(distance.shape[0])] = 10.
+            predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].cpu().numpy()
+            predictions = labels[predictions].tolist()
+
+            map1 = map_per_set(labels, predictions, topk=1)
+            map5 = map_per_set(labels, predictions, topk=5)
+
             self.log(f"map@1", map1, prog_bar=True, logger=False, rank_zero_only=True)
             self.log(f"map@5", map5, prog_bar=True, logger=False, rank_zero_only=True)
             self.log(f"metrics/{stage}_map@1", map1, prog_bar=False, logger=True, rank_zero_only=True)

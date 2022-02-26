@@ -101,7 +101,7 @@ class HappyLightningModule(pl.LightningModule):
 
     def _epoch_end(self, outputs: list, stage: str = "val") -> None:
         def _gather(key):
-            node_values = torch.concat([torch.as_tensor(output[key]) for output in outputs])
+            node_values = torch.concat([torch.as_tensor(output[key]).to(self.device) for output in outputs])
             if self.trainer.world_size == 1:
                 return node_values
 
@@ -116,7 +116,7 @@ class HappyLightningModule(pl.LightningModule):
 
         distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
         distance[np.diag_indices(distance.shape[0])] = 10.
-        _, predictions = torch.topk(distance, k=5, largest=False, dim=1)
+        predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].cpu().numpy()
         predictions = labels[predictions].tolist()
 
         map1 = map_per_set(labels, predictions, topk=1)

@@ -68,8 +68,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True)
 
     def val_dataloader(self):
-        return self._dataloader(self.val_dataset, self.val_sampler,
-                                batch_size=self.hparams.batch_size * 2)
+        return self._dataloader(self.val_dataset, self.val_sampler)
 
     def _dataloader(self, dataset, batch_sampler=None, shuffle=False, batch_size=None):
         if batch_size is None:

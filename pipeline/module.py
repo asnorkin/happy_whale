@@ -114,19 +114,18 @@ class HappyLightningModule(pl.LightningModule):
         embeddings = _gather("embeddings").cpu()
         labels = _gather("labels").cpu().numpy()
 
-        if self.trainer.is_global_zero:
-            distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
-            distance[np.diag_indices(distance.shape[0])] = 10.
-            predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].numpy()
-            predictions = labels[predictions].tolist()
+        distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
+        distance[np.diag_indices(distance.shape[0])] = 10.
+        predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].numpy()
+        predictions = labels[predictions].tolist()
 
-            map1 = map_per_set(labels, predictions, topk=1)
-            map5 = map_per_set(labels, predictions, topk=5)
+        map1 = map_per_set(labels, predictions, topk=1)
+        map5 = map_per_set(labels, predictions, topk=5)
 
-            self.log(f"map@1", map1, prog_bar=True, logger=False, rank_zero_only=True)
-            self.log(f"map@5", map5, prog_bar=True, logger=False, rank_zero_only=True)
-            self.log(f"metrics/{stage}_map@1", map1, prog_bar=False, logger=True, rank_zero_only=True)
-            self.log(f"metrics/{stage}_map@5", map5, prog_bar=False, logger=True, rank_zero_only=True)
+        self.log(f"map@1", map1, prog_bar=True, logger=False)
+        self.log(f"map@5", map5, prog_bar=True, logger=False)
+        self.log(f"metrics/{stage}_map@1", map1, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_map@5", map5, prog_bar=False, logger=True)
 
     def _step(self, batch, _batch_idx, stage):
         logits, pooled_features = self.forward(batch["image"], batch["label"])

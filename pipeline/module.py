@@ -111,13 +111,13 @@ class HappyLightningModule(pl.LightningModule):
             all_values = torch.cat(all_values)
             return all_values
 
-        embeddings = _gather("embeddings")
+        embeddings = _gather("embeddings").cpu()
         labels = _gather("labels").cpu().numpy()
 
         if self.trainer.is_global_zero:
             distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
             distance[np.diag_indices(distance.shape[0])] = 10.
-            predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].cpu().numpy()
+            predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].numpy()
             predictions = labels[predictions].tolist()
 
             map1 = map_per_set(labels, predictions, topk=1)

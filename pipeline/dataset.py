@@ -1,6 +1,5 @@
 import os
 import os.path as osp
-from copy import deepcopy
 
 import cv2
 import pandas as pd
@@ -9,9 +8,10 @@ from tqdm import tqdm
 
 
 class HappyDataset(Dataset):
-    def __init__(self, items, transform=None):
+    def __init__(self, items, transform=None, load_all_fields=False):
         self.items = items
         self.transform = transform
+        self.load_all_fields = load_all_fields
 
     def __len__(self):
         return len(self.items)
@@ -22,6 +22,11 @@ class HappyDataset(Dataset):
             "image": self.load_image(item["image_file"]),
             "label": item["label"],
         }
+
+        if self.load_all_fields:
+            for key in item.keys():
+                if key not in sample:
+                    sample[key] = item[key]
 
         if self.transform:
             sample = self.transform(**sample)

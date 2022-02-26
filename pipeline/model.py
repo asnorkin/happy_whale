@@ -34,7 +34,7 @@ class HappyModel(nn.Module):
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):
-        ckpt = torch.load(checkpoint_file)
+        ckpt = torch.load(checkpoint_file, map_location="cpu")
         state_dict = {k[6:] if k.startswith("model.") else k: v for k, v in ckpt["state_dict"].items()}
         hparams = ckpt["hyper_parameters"]
 

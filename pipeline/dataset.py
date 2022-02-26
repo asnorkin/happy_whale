@@ -17,8 +17,11 @@ class HappyDataset(Dataset):
         return len(self.items)
 
     def __getitem__(self, index):
-        sample = deepcopy(self.items[index])
-        sample["image"] = self.load_image(sample["image_file"])
+        item = self.items[index]
+        sample = {
+            "image": self.load_image(item["image_file"]),
+            "label": item["label"],
+        }
 
         if self.transform:
             sample = self.transform(**sample)

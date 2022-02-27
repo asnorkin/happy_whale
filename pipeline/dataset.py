@@ -52,7 +52,8 @@ class HappyDataset(Dataset):
                 "species": -1,
                 "klass": -1,
                 "individual_id": -1,
-                "fold": -1
+                "fold": -1,
+                "new": -1,
             } for image_file in os.listdir(images_dir)])
 
         items, not_found = [], 0
@@ -72,6 +73,7 @@ class HappyDataset(Dataset):
                 "class": row.klass,
                 "individual_id": row.individual_id,
                 "fold": row.fold,
+                "new": row.new,
             }
             items.append(item)
 

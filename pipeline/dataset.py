@@ -21,6 +21,7 @@ class HappyDataset(Dataset):
         sample = {
             "image": self.load_image(item["image_file"]),
             "label": item["label"],
+            "new": item["new"],
         }
 
         if self.load_all_fields:

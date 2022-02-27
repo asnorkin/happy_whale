@@ -29,6 +29,10 @@ class HappyLightningModule(pl.LightningModule):
             easy_margin=self.hparams.easy_margin,
             ls_eps=self.hparams.ls_eps)
 
+        # Placeholders
+        self.train_embeddings = None
+        self.train_labels = None
+
     def forward(self, images, labels):
         return self.model.forward(images, labels)
 
@@ -93,6 +97,9 @@ class HappyLightningModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         return self._step(batch, batch_idx, stage="val")
 
+    def training_epoch_end(self, outputs):
+        self._epoch_end(outputs, "train")
+
     def validation_epoch_end(self, outputs):
         self._epoch_end(outputs, "val")
 
@@ -113,11 +120,44 @@ class HappyLightningModule(pl.LightningModule):
 
         embeddings = _gather("embeddings").cpu()
         labels = _gather("labels").cpu().numpy()
+        new = _gather("new").cpu().numpy()
 
-        distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(embeddings).T)
-        distance[np.diag_indices(distance.shape[0])] = 10.
-        predictions = torch.topk(distance, k=5, largest=False, dim=1)[1].numpy()
-        predictions = labels[predictions].tolist()
+        # For train stage just save embeddings and labels
+        if stage == "train":
+            self.train_embeddings = embeddings
+            self.train_labels = labels
+            return
+
+        if self.train_embeddings is None:
+            self.print("self.train_embeddings is None!! Skip validation metrics")
+            return
+
+        k = 5
+        new_threshold = 0.5
+        _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(self.train_embeddings).T)
+        topk_distances, topk_predictions = torch.topk(_distance, k=10 * k, largest=False, dim=1).numpy()
+        predictions = []
+        for i, (pred, dist) in enumerate(zip(topk_predictions, topk_distances)):
+            pred_ids = self.train_labels[pred].tolist()
+
+            # Remove duplicates
+            seen = set()
+            _pred_ids, _dist = [], []
+            for pid, di in zip(pred_ids, dist):
+                if pid in seen:
+                    continue
+                seen.add(pid)
+                _pred_ids.append(pid)
+                _dist.append(di)
+            pred_ids, dist = _pred_ids[:k], _dist[:k]
+
+            # Add new_individual
+            if dist[-1] > new_threshold:
+                new_i = min(i for i, d in enumerate(dist) if d > new_threshold)
+                new_pred = labels[i] if new[i] else -1
+                pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
+
+            predictions.append(pred_ids)
 
         map1 = map_per_set(labels, predictions, topk=1)
         map5 = map_per_set(labels, predictions, topk=5)
@@ -134,12 +174,11 @@ class HappyLightningModule(pl.LightningModule):
         metrics = dict()
         self._log(losses, metrics, stage=stage)
 
-        if stage == "train":
-            return losses["total"]
-
         return {
-            "embeddings": pooled_features.cpu().numpy(),
-            "labels": batch["label"].cpu().numpy(),
+            "loss": losses["total"],
+            "embeddings": pooled_features,
+            "labels": batch["label"],
+            "new": batch["new"],
         }
 
     def _log(self, losses, metrics, stage):

@@ -176,9 +176,9 @@ class HappyLightningModule(pl.LightningModule):
 
         return {
             "loss": losses["total"],
-            "embeddings": pooled_features,
-            "labels": batch["label"],
-            "new": batch["new"],
+            "embeddings": pooled_features.detach(),
+            "labels": batch["label"].detach(),
+            "new": batch["new"].detach(),
         }
 
     def _log(self, losses, metrics, stage):

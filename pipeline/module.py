@@ -30,8 +30,7 @@ class HappyLightningModule(pl.LightningModule):
             ls_eps=self.hparams.ls_eps)
 
         # Placeholders
-        self.train_embeddings = None
-        self.train_labels = None
+        self.train_outputs = None
 
     def forward(self, images, labels):
         return self.model.forward(images, labels)
@@ -97,18 +96,14 @@ class HappyLightningModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         return self._step(batch, batch_idx, stage="val")
 
-    def training_epoch_end(self, outputs):
-        self._epoch_end(outputs, "train")
+    def on_train_epoch_start(self):
+        self.train_outputs = []
 
     def validation_epoch_end(self, outputs):
-        self._epoch_end(outputs, "val")
+        stage = "val"
 
-    def test_epoch_end(self, outputs):
-        self._epoch_end(outputs, "test")
-
-    def _epoch_end(self, outputs: list, stage: str = "val") -> None:
-        def _gather(key):
-            node_values = torch.concat([torch.as_tensor(output[key]).to(self.device) for output in outputs])
+        def _gather(key, outs=outputs):
+            node_values = torch.concat([torch.as_tensor(output[key]).to(self.device) for output in outs])
             if self.trainer.world_size == 1:
                 return node_values
 
@@ -118,27 +113,26 @@ class HappyLightningModule(pl.LightningModule):
             all_values = torch.cat(all_values)
             return all_values
 
+        if not self.train_outputs:
+            self.print("self.train_outputs is empty!! Skip validation metrics.")
+            return
+
+        train_embeddings = _gather("embeddings", outs=self.train_outputs).cpu()
+        train_labels = _gather("labels", outs=self.train_outputs).cpu().numpy()
+
         embeddings = _gather("embeddings").cpu()
         labels = _gather("labels").cpu().numpy()
         new = _gather("new").cpu().numpy()
 
-        # For train stage just save embeddings and labels
-        if stage == "train":
-            self.train_embeddings = embeddings
-            self.train_labels = labels
-            return
-
-        if self.train_embeddings is None:
-            self.print("self.train_embeddings is None!! Skip validation metrics")
-            return
-
         k = 5
         new_threshold = 0.5
-        _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(self.train_embeddings).T)
-        topk_distances, topk_predictions = torch.topk(_distance, k=10 * k, largest=False, dim=1).numpy()
+        _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(train_embeddings).T)
+        topk_distances, topk_predictions = torch.topk(_distance, k=10 * k, largest=False, dim=1)
+        topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()
+
         predictions = []
         for i, (pred, dist) in enumerate(zip(topk_predictions, topk_distances)):
-            pred_ids = self.train_labels[pred].tolist()
+            pred_ids = train_labels[pred].tolist()
 
             # Remove duplicates
             seen = set()
@@ -174,11 +168,17 @@ class HappyLightningModule(pl.LightningModule):
         metrics = dict()
         self._log(losses, metrics, stage=stage)
 
+        if stage == "train":
+            self.train_outputs.append({
+                "embeddings": pooled_features.detach().cpu(),
+                "labels": batch["label"].detach().cpu(),
+            })
+            return losses["total"]
+
         return {
-            "loss": losses["total"],
-            "embeddings": pooled_features.detach(),
-            "labels": batch["label"].detach(),
-            "new": batch["new"].detach(),
+            "embeddings": pooled_features.detach().cpu(),
+            "labels": batch["label"].detach().cpu(),
+            "new": batch["new"].detach().cpu(),
         }
 
     def _log(self, losses, metrics, stage):

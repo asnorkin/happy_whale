@@ -131,23 +131,23 @@ class HappyLightningModule(pl.LightningModule):
         topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()
 
         predictions = []
-        for i, (pred, dist) in enumerate(zip(topk_predictions, topk_distances)):
-            pred_ids = train_labels[pred].tolist()
+        for i, (preds, dists) in enumerate(zip(topk_predictions, topk_distances)):
+            pred_ids = train_labels[preds].tolist()
 
             # Remove duplicates
             seen = set()
-            _pred_ids, _dist = [], []
-            for pid, di in zip(pred_ids, dist):
+            _pred_ids, _dists = [], []
+            for pid, di in zip(pred_ids, dists):
                 if pid in seen:
                     continue
                 seen.add(pid)
                 _pred_ids.append(pid)
-                _dist.append(di)
-            pred_ids, dist = _pred_ids[:k], _dist[:k]
+                _dists.append(di)
+            pred_ids, dists = _pred_ids[:k], _dists[:k]
 
             # Add new_individual
-            if dist[-1] > new_threshold:
-                new_i = min(i for i, d in enumerate(dist) if d > new_threshold)
+            if dists[-1] > new_threshold:
+                new_i = min(i for i, d in enumerate(dists) if d > new_threshold)
                 new_pred = labels[i] if new[i] else -1
                 pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
 

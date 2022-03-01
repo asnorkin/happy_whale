@@ -6,7 +6,7 @@ from pipeline.arcface import ArcMarginProduct, GeM
 
 
 class HappyModel(nn.Module):
-    def __init__(self, model_name, num_classes, embedding_size=512, pretrained=True,
+    def __init__(self, model_name, num_classes, embedding_size=512, dropout=0.2, pretrained=True,
                  s=30.0, m=0.5, easy_margin=False, ls_eps=0.0, **timm_kwargs):
         super().__init__()
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
@@ -18,7 +18,13 @@ class HappyModel(nn.Module):
             self.model.classifier = nn.Identity()
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()
-        self.embedding = nn.Linear(in_features, embedding_size)
+        self.embedding = nn.Sequential(
+            nn.Linear(in_features, embedding_size),
+            nn.BatchNorm1d(embedding_size),
+            nn.ReLU(),
+            nn.Linear(embedding_size, embedding_size),
+            nn.Dropout(dropout),
+        )
         self.fc = ArcMarginProduct(embedding_size, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
 
     def forward(self, images, labels):
@@ -42,6 +48,7 @@ class HappyModel(nn.Module):
             model_name=hparams["model_name"],
             num_classes=hparams["num_classes"],
             embedding_size=hparams["embedding_size"],
+            dropout=hparams["dropout"],
             s=hparams["s"],
             m=hparams["m"],
             easy_margin=hparams["easy_margin"],

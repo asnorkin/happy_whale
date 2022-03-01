@@ -24,6 +24,7 @@ class HappyLightningModule(pl.LightningModule):
             model_name=self.hparams.model_name,
             num_classes=self.hparams.num_classes,
             embedding_size=self.hparams.embedding_size,
+            dropout=self.hparams.dropout,
             s=self.hparams.s,
             m=self.hparams.m,
             easy_margin=self.hparams.easy_margin,
@@ -67,6 +68,7 @@ class HappyLightningModule(pl.LightningModule):
         # Model
         parser.add_argument("--model_name", type=str, default="tf_efficientnet_b0_ns")
         parser.add_argument("--embedding_size", type=int, default=512)
+        parser.add_argument("--dropout", type=float, default=0.2)
         parser.add_argument("--num_classes", type=int, default=15587)
 
         # Loss

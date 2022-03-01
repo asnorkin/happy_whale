@@ -20,7 +20,9 @@ class HappyDataset(Dataset):
         item = self.items[index]
         sample = {
             "image": self.load_image(item["image_file"]),
-            "label": item["label"],
+            "klass_label": item["klass_label"],
+            "species_label": item["species_label"],
+            "individual_label": item["individual_label"],
             "new": item["new"],
         }
 
@@ -49,10 +51,12 @@ class HappyDataset(Dataset):
             # Create dummy labels dataframe
             labels_df = pd.DataFrame([{
                 "image": image_file,
-                "label": -1,
-                "species": -1,
                 "klass": -1,
+                "species": -1,
                 "individual_id": -1,
+                "klass_label": -1,
+                "species_label": -1,
+                "individual_label": -1,
                 "fold": -1,
                 "new": -1,
             } for image_file in os.listdir(images_dir)])
@@ -64,15 +68,17 @@ class HappyDataset(Dataset):
                 not_found += 1
                 continue
 
-            if debug and len(items) >= 1000:
+            if debug and len(items) >= 100:
                 break
 
             item = {
                 "image_file": image_file,
-                "label": row.label,
-                "specie": row.species,
-                "class": row.klass,
+                "klass": row.klass,
+                "species": row.species,
                 "individual_id": row.individual_id,
+                "klass_label": row.klass_label,
+                "species_label": row.species_label,
+                "individual_label": row.individual_label,
                 "fold": row.fold,
                 "new": row.new,
             }

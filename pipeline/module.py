@@ -4,6 +4,7 @@ from math import ceil
 import numpy as np
 import pytorch_lightning as pl
 import torch
+from sklearn.metrics import classification_report
 from torch import distributed as dist
 from torch import nn
 from torch.nn import functional as F
@@ -19,7 +20,8 @@ class HappyLightningModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.arcface_criterion = nn.CrossEntropyLoss()
+        self.klass_criterion = nn.BCEWithLogitsLoss()
         self.model = HappyModel(
             model_name=self.hparams.model_name,
             num_classes=self.hparams.num_classes,
@@ -120,10 +122,12 @@ class HappyLightningModule(pl.LightningModule):
             return
 
         train_embeddings = _gather("embeddings", outs=self.train_outputs).cpu()
-        train_labels = _gather("labels", outs=self.train_outputs).cpu().numpy()
+        train_labels = _gather("individual_labels", outs=self.train_outputs).cpu().numpy()
 
         embeddings = _gather("embeddings").cpu()
-        labels = _gather("labels").cpu().numpy()
+        klass_probabilities = _gather("klass_probabilities").cpu().numpy()
+        klass_labels = _gather("klass_labels").cpu().numpy()
+        individual_labels = _gather("individual_labels").cpu().numpy()
         new = _gather("new").cpu().numpy()
 
         k = 5
@@ -151,39 +155,62 @@ class HappyLightningModule(pl.LightningModule):
                 # Add new_individual
                 if dists[-1] > new_thresh:
                     new_i = min(i for i, d in enumerate(dists) if d > new_thresh)
-                    new_pred = labels[i] if new[i] else -1
+                    new_pred = individual_labels[i] if new[i] else -1
                     pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
 
                 predictions.append(pred_ids)
 
-            map1 = map_per_set(labels, predictions, topk=1)
-            map5 = map_per_set(labels, predictions, topk=5)
+            map1 = map_per_set(individual_labels, predictions, topk=1)
+            map5 = map_per_set(individual_labels, predictions, topk=5)
             if (map5, map1) > (best_map5, best_map1):
                 best_thresh, best_map5, best_map1 = new_thresh, map5, map1
 
+        # Klass metrics
+        klass_threshold = 0.5
+        klass_names = ["dolphin", "whale"]
+        klass_predictions = (klass_probabilities > klass_threshold).astype(int)
+        klass_metrics = classification_report(
+            klass_labels, klass_predictions, target_names=klass_names, output_dict=True)
+
+        # Progress Bar
         self.log(f"map@1", best_map1, prog_bar=True, logger=False)
         self.log(f"map@5", best_map5, prog_bar=True, logger=False)
+        self.log(f"kf1", klass_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
+
+        # Logger
         self.log(f"metrics/{stage}_map@1", best_map1, prog_bar=False, logger=True)
         self.log(f"metrics/{stage}_map@5", best_map5, prog_bar=False, logger=True)
-        self.log(f"metrics/{stage}_new_threshold", best_thresh)
+        self.log(f"metrics/{stage}_new_threshold", best_thresh, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_klass_f1", klass_metrics["macro avg"]["f1-score"], prog_bar=False, logger=True)
 
     def _step(self, batch, _batch_idx, stage):
-        logits, pooled_features = self.forward(batch["image"], batch["label"])
+        arcface_logits, klass_logits, embeddings = self.forward(batch["image"], batch["individual_label"])
 
-        losses = {"total": self.criterion(logits, batch["label"])}
+        # Losses
+        arcface_loss = self.arcface_criterion(arcface_logits, batch["individual_label"])
+        klass_loss = self.klass_criterion(klass_logits, batch["klass_label"].float())
+        losses = {
+            "total": arcface_loss + klass_loss,
+            "arcface": arcface_loss,
+            "klass": klass_loss
+        }
+
         metrics = dict()
         self._log(losses, metrics, stage=stage)
 
         if stage == "train":
             self.train_outputs.append({
-                "embeddings": pooled_features.detach().cpu(),
-                "labels": batch["label"].detach().cpu(),
+                "embeddings": embeddings.detach().cpu(),
+                "individual_labels": batch["individual_label"].detach().cpu(),
+                "klass_labels": batch["klass_label"].detach().cpu(),
             })
             return losses["total"]
 
         return {
-            "embeddings": pooled_features.detach().cpu(),
-            "labels": batch["label"].detach().cpu(),
+            "embeddings": embeddings.detach().cpu(),
+            "klass_probabilities": klass_logits.detach().sigmoid().cpu(),
+            "individual_labels": batch["individual_label"].detach().cpu(),
+            "klass_labels": batch["klass_label"].detach().cpu(),
             "new": batch["new"].detach().cpu(),
         }
 
@@ -196,5 +223,6 @@ class HappyLightningModule(pl.LightningModule):
 
         # Logs
         logs = dict()
-        logs[f"losses/{stage}_total"] = losses["total"]
+        for lname, lval in losses.items():
+            logs[f"losses/{stage}_{lname}"] = lval
         self.log_dict(logs, prog_bar=False, logger=True)

@@ -26,17 +26,34 @@ class HappyModel(nn.Module):
             nn.Dropout(dropout),
         )
         self.fc = ArcMarginProduct(embedding_size, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
+        self.klass_head = nn.Sequential(
+            nn.Linear(in_features, 1),
+        )
 
     def forward(self, images, labels):
-        embeddings = self.embed(images)
-        output = self.fc(embeddings, labels)
-        return output, embeddings
-
-    def embed(self, images):
         features = self.model(images)
         pooled_features = self.pooling(features).flatten(1)
+
+        # ArcFace
         embeddings = self.embedding(pooled_features)
-        return embeddings
+        arcface_logits = self.fc(embeddings, labels)
+
+        # Klass
+        klass_logits = self.klass_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
+
+        return arcface_logits, klass_logits, embeddings
+
+    def predict(self, images):
+        features = self.model(images)
+        pooled_features = self.pooling(features).flatten(1)
+
+        # Embeddings
+        embeddings = self.embedding(pooled_features)
+
+        # Klass
+        klass_logits = self.klass_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
+
+        return klass_logits, embeddings
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):

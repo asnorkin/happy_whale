@@ -21,7 +21,7 @@ class HappyDataset(Dataset):
         sample = {
             "image": self.load_image(item["image_file"]),
             "klass_label": item["klass_label"],
-            "species_label": item["species_label"],
+            "specie_label": item["specie_label"],
             "individual_label": item["individual_label"],
             "new": item["new"],
         }
@@ -55,7 +55,7 @@ class HappyDataset(Dataset):
                 "species": -1,
                 "individual_id": -1,
                 "klass_label": -1,
-                "species_label": -1,
+                "specie_label": -1,
                 "individual_label": -1,
                 "fold": -1,
                 "new": -1,
@@ -77,7 +77,7 @@ class HappyDataset(Dataset):
                 "species": row.species,
                 "individual_id": row.individual_id,
                 "klass_label": row.klass_label,
-                "species_label": row.species_label,
+                "specie_label": row.species_label,
                 "individual_label": row.individual_label,
                 "fold": row.fold,
                 "new": row.new,

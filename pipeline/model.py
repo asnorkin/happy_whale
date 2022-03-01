@@ -52,8 +52,9 @@ class HappyModel(nn.Module):
 
         # Klass
         klass_logits = self.klass_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
+        klass_probabilities = klass_logits.sigmoid()
 
-        return klass_logits, embeddings
+        return klass_probabilities, embeddings
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):

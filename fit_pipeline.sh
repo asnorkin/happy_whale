@@ -18,7 +18,7 @@ INPUT_SIZE=512
 DROPOUT=0.2
 LR=0.0005
 
-EXPERIMENT=tf_effb${B}_ns_detic_2ldp0.2_${INPUT_SIZE}inp${BATCH}x${ACC}b${EPOCHS}e${LR}lr
+EXPERIMENT=tf_effb${B}_ns_detic_2ldp0.2_${INPUT_SIZE}inp${GPUS}g${BATCH}x${ACC}b${EPOCHS}e${LR}lr
 MODEL=tf_efficientnet_b${B}_ns
 
 export PYTHONPATH=.:${PYTHONPATH}

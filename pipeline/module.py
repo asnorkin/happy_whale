@@ -127,41 +127,45 @@ class HappyLightningModule(pl.LightningModule):
         new = _gather("new").cpu().numpy()
 
         k = 5
-        new_threshold = 0.5
         _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(train_embeddings).T)
         topk_distances, topk_predictions = torch.topk(_distance, k=10 * k, largest=False, dim=1)
         topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()
 
-        predictions = []
-        for i, (preds, dists) in enumerate(zip(topk_predictions, topk_distances)):
-            pred_ids = train_labels[preds].tolist()
+        best_thresh, best_map5, best_map1 = 0.2, 0, 0
+        for new_thresh in np.arange(0.2, 0.61, 0.05):
+            predictions = []
+            for i, (preds, dists) in enumerate(zip(topk_predictions, topk_distances)):
+                pred_ids = train_labels[preds].tolist()
 
-            # Remove duplicates
-            seen = set()
-            _pred_ids, _dists = [], []
-            for pid, di in zip(pred_ids, dists):
-                if pid in seen:
-                    continue
-                seen.add(pid)
-                _pred_ids.append(pid)
-                _dists.append(di)
-            pred_ids, dists = _pred_ids[:k], _dists[:k]
+                # Remove duplicates
+                seen = set()
+                _pred_ids, _dists = [], []
+                for pid, di in zip(pred_ids, dists):
+                    if pid in seen:
+                        continue
+                    seen.add(pid)
+                    _pred_ids.append(pid)
+                    _dists.append(di)
+                pred_ids, dists = _pred_ids[:k], _dists[:k]
 
-            # Add new_individual
-            if dists[-1] > new_threshold:
-                new_i = min(i for i, d in enumerate(dists) if d > new_threshold)
-                new_pred = labels[i] if new[i] else -1
-                pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
+                # Add new_individual
+                if dists[-1] > new_thresh:
+                    new_i = min(i for i, d in enumerate(dists) if d > new_thresh)
+                    new_pred = labels[i] if new[i] else -1
+                    pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
 
-            predictions.append(pred_ids)
+                predictions.append(pred_ids)
 
-        map1 = map_per_set(labels, predictions, topk=1)
-        map5 = map_per_set(labels, predictions, topk=5)
+            map1 = map_per_set(labels, predictions, topk=1)
+            map5 = map_per_set(labels, predictions, topk=5)
+            if (map5, map1) > (best_map5, best_map1):
+                best_thresh, best_map5, best_map1 = new_thresh, map5, map1
 
-        self.log(f"map@1", map1, prog_bar=True, logger=False)
-        self.log(f"map@5", map5, prog_bar=True, logger=False)
-        self.log(f"metrics/{stage}_map@1", map1, prog_bar=False, logger=True)
-        self.log(f"metrics/{stage}_map@5", map5, prog_bar=False, logger=True)
+        self.log(f"map@1", best_map1, prog_bar=True, logger=False)
+        self.log(f"map@5", best_map5, prog_bar=True, logger=False)
+        self.log(f"metrics/{stage}_map@1", best_map1, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_map@5", best_map5, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_new_threshold", best_thresh)
 
     def _step(self, batch, _batch_idx, stage):
         logits, pooled_features = self.forward(batch["image"], batch["label"])

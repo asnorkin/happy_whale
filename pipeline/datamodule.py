@@ -20,7 +20,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
             A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.5),
         ]
         self.post_transforms = [
-            A.Resize(self.hparams.input_size, self.hparams.input_size, always_apply=True),
+            A.Resize(height=self.hparams.input_height, width=self.hparams.input_width, always_apply=True),
             A.Normalize(always_apply=True),
             ToTensorV2(always_apply=True),
         ]
@@ -58,7 +58,8 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         # General
         parser.add_argument("--num_workers", type=int, default=8)
-        parser.add_argument("--input_size", type=int, default=448)
+        parser.add_argument("--input_height", type=int, default=384)
+        parser.add_argument("--input_width", type=int, default=768)
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
 

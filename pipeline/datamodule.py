@@ -16,7 +16,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         self.pre_transforms = []
         self.augmentations = [
             A.HorizontalFlip(),
-            A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, p=0.5),
+            A.Affine(scale=0.15, translate_percent=0.1, rotate=30, shear=15, p=0.5),
             A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.5),
         ]
         self.post_transforms = [

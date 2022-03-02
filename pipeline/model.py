@@ -62,7 +62,7 @@ class HappyModel(nn.Module):
 
         # Specie
         specie_logits = self.specie_head(pooled_features)
-        specie_probabilities = specie_logits.softmax()
+        specie_probabilities = specie_logits.softmax(dim=1)
 
         return klass_probabilities, specie_probabilities, embeddings
 

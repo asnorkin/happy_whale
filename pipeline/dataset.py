@@ -55,7 +55,7 @@ class HappyDataset(Dataset):
                 "species": -1,
                 "individual_id": -1,
                 "klass_label": -1,
-                "specie_label": -1,
+                "species_label": -1,
                 "individual_label": -1,
                 "fold": -1,
                 "new": -1,

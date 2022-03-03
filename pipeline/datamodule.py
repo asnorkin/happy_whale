@@ -17,7 +17,8 @@ class HappyLightningDataModule(pl.LightningDataModule):
         self.augmentations = [
             A.HorizontalFlip(),
             A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, border_mode=0, value=0, p=0.5),
-            A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.5),
+            A.HueSaturationValue(hue_shift_limit=3, sat_shift_limit=70, val_shift_limit=0, p=0.5),
+            A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.2, p=0.5),
         ]
         self.post_transforms = [
             A.Resize(height=self.hparams.input_height, width=self.hparams.input_width, always_apply=True),

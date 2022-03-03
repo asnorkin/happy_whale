@@ -87,6 +87,6 @@ class HappyLightningDataModule(pl.LightningDataModule):
         else:
             params["batch_size"] = batch_size
             params["shuffle"] = shuffle
-            params["drop_last"] = False
+            params["drop_last"] = True
 
         return DataLoader(dataset, **params)

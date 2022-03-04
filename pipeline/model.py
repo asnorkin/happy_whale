@@ -6,8 +6,21 @@ from pipeline.arcface import ArcMarginProduct, GeM
 
 
 class HappyModel(nn.Module):
-    def __init__(self, model_name, num_classes, num_species, embedding_size=512, dropout=0.2, pretrained=True,
-                 s=30.0, m=0.5, easy_margin=False, ls_eps=0.0, **timm_kwargs):
+    def __init__(
+        self,
+        model_name,
+        num_classes,
+        num_species,
+        embedding_size=512,
+        specie_hidden=128,
+        dropout=0.2,
+        pretrained=True,
+        s=30.0,
+        m=0.5,
+        easy_margin=False,
+        ls_eps=0.0,
+        **timm_kwargs
+    ):
         super().__init__()
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
         if hasattr(self.model, "fc"):
@@ -30,7 +43,10 @@ class HappyModel(nn.Module):
             nn.Linear(in_features, 1),
         )
         self.specie_head = nn.Sequential(
-            nn.Linear(in_features, num_species)
+            nn.Linear(in_features, specie_hidden),
+            nn.BatchNorm1d(specie_hidden),
+            nn.ReLU(),
+            nn.Linear(specie_hidden, num_species),
         )
 
     def forward(self, images, labels):

@@ -27,6 +27,7 @@ class HappyLightningModule(pl.LightningModule):
             model_name=self.hparams.model_name,
             num_classes=self.hparams.num_classes,
             num_species=self.hparams.num_species,
+            specie_hidden=self.hparams.specie_hidden,
             embedding_size=self.hparams.embedding_size,
             dropout=self.hparams.dropout,
             s=self.hparams.s,
@@ -75,6 +76,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--dropout", type=float, default=0.2)
         parser.add_argument("--num_classes", type=int, default=15587)
         parser.add_argument("--num_species", type=int, default=26)
+        parser.add_argument("--specie_hidden", type=int, default=128)
 
         # Loss
         parser.add_argument("--s", type=float, default=30.0)
@@ -124,10 +126,10 @@ class HappyLightningModule(pl.LightningModule):
             self.print("self.train_outputs is empty!! Skip validation metrics.")
             return
 
-        train_embeddings = _gather("embeddings", outs=self.train_outputs).cpu()
+        train_embeddings = _gather("embeddings", outs=self.train_outputs).cpu().float()
         train_labels = _gather("individual_labels", outs=self.train_outputs).cpu().numpy()
 
-        embeddings = _gather("embeddings").cpu()
+        embeddings = _gather("embeddings").cpu().float()
         klass_probabilities = _gather("klass_probabilities").cpu().numpy()
         klass_labels = _gather("klass_labels").cpu().numpy()
         specie_probabilities = _gather("specie_probabilities").cpu().numpy()

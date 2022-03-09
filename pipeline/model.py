@@ -25,7 +25,7 @@ class HappyModel(nn.Module):
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
         for head_name in ["fc", "head", "classifier"]:
             if hasattr(self.model, head_name):
-                in_features = getattr(self.model, head_name)
+                in_features = getattr(self.model, head_name).in_features
                 setattr(self.model, head_name, nn.Identity())
                 break
         else:

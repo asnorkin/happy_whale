@@ -23,8 +23,6 @@ class HappyLightningDataModule(pl.LightningDataModule):
                 A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.2, p=0.5),
                 A.ToGray(p=0.05),
             ], p=0.75),
-            A.HueSaturationValue(hue_shift_limit=3, sat_shift_limit=70, val_shift_limit=0, p=0.5),
-            A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.2, p=0.5),
         ]
         self.post_transforms = [
             A.Resize(height=self.hparams.input_height, width=self.hparams.input_width, always_apply=True),

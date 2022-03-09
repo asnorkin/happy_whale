@@ -23,9 +23,13 @@ class HappyLightningModule(pl.LightningModule):
         self.arcface_criterion = nn.CrossEntropyLoss()
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
+
+        num_classes = self.hparams.num_classes
+        if self.hparams.flip_id:
+            num_classes *= 2
         self.model = HappyModel(
             model_name=self.hparams.model_name,
-            num_classes=self.hparams.num_classes,
+            num_classes=num_classes,
             num_species=self.hparams.num_species,
             specie_hidden=self.hparams.specie_hidden,
             embedding_size=self.hparams.embedding_size,
@@ -77,6 +81,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--num_classes", type=int, default=15587)
         parser.add_argument("--num_species", type=int, default=26)
         parser.add_argument("--specie_hidden", type=int, default=128)
+        parser.add_argument("--flip_id", type=int, default=0)
 
         # Loss
         parser.add_argument("--s", type=float, default=30.0)
@@ -174,14 +179,12 @@ class HappyLightningModule(pl.LightningModule):
 
         # Klass metrics
         klass_threshold = 0.5
-        klass_names = ["dolphin", "whale"]
         klass_predictions = (klass_probabilities > klass_threshold).astype(int)
-        klass_metrics = classification_report(
-            klass_labels, klass_predictions, target_names=klass_names, output_dict=True)
+        klass_metrics = classification_report(klass_labels, klass_predictions, output_dict=True, zero_division=0)
 
         # Specie metrics
         specie_predictions = np.argmax(specie_probabilities, axis=1)
-        specie_metrics = classification_report(specie_labels, specie_predictions, output_dict=True)
+        specie_metrics = classification_report(specie_labels, specie_predictions, output_dict=True, zero_division=0)
 
         # Progress Bar
         self.log(f"map@1", best_map1, prog_bar=True, logger=False)

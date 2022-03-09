@@ -48,6 +48,7 @@ class HappyModel(nn.Module):
             nn.Linear(in_features, specie_hidden),
             nn.BatchNorm1d(specie_hidden),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(specie_hidden, num_species),
         )
 

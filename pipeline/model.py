@@ -23,12 +23,14 @@ class HappyModel(nn.Module):
     ):
         super().__init__()
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
-        if hasattr(self.model, "fc"):
-            in_features = self.model.fc.in_features
-            self.model.fc = nn.Identity()
+        for head_name in ["fc", "head", "classifier"]:
+            if hasattr(self.model, head_name):
+                in_features = getattr(self.model, head_name).in_features
+                setattr(self.model, head_name, nn.Identity())
+                break
         else:
-            in_features = self.model.classifier.in_features
-            self.model.classifier = nn.Identity()
+            raise ValueError(f"Model has no expected head")
+
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()
         self.embedding = nn.Sequential(
@@ -46,6 +48,7 @@ class HappyModel(nn.Module):
             nn.Linear(in_features, specie_hidden),
             nn.BatchNorm1d(specie_hidden),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(specie_hidden, num_species),
         )
 

@@ -18,7 +18,7 @@ class CameraLightningModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.viewpoint_criterion = nn.CrossEntropyLoss()
+        self.viewpoint_criterion = nn.CrossEntropyLoss(label_smoothing=self.hparams.viewpoint_smoothing)
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
 
@@ -70,7 +70,10 @@ class CameraLightningModule(pl.LightningModule):
         parser.add_argument("--dropout", type=float, default=0.2)
         parser.add_argument("--num_species", type=int, default=26)
         parser.add_argument("--specie_hidden", type=int, default=64)
+
+        # Loss
         parser.add_argument("--viewpoint_alpha", type=float, default=10.0)
+        parser.add_argument("--viewpoint_smoothing", type=float, default=0.1)
 
         # Learning rate
         parser.add_argument("--num_epochs", type=int, default=20)

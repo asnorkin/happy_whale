@@ -34,5 +34,6 @@ nohup python ${WORK_DIR}/train.py \
     --input_width=${INPUT_WIDTH} \
     --dropout=${DROPOUT} \
     --lr=${LR} \
+    --project=happy_camera \
     --experiment=${EXPERIMENT} > ${WORK_DIR}/logs/${EXPERIMENT}_train.log 2>&1 &
 

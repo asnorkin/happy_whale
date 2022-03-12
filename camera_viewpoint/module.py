@@ -79,7 +79,7 @@ class CameraLightningModule(pl.LightningModule):
         parser.add_argument("--lr_pct_start", type=float, default=0.1)
 
         # Monitor
-        parser.add_argument("--monitor", type=str, default="viewpoint_f1")
+        parser.add_argument("--monitor", type=str, default="vf1")
         parser.add_argument("--monitor_mode", type=str, default="max")
 
         # Work dir

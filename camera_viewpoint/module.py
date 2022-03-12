@@ -147,7 +147,7 @@ class CameraLightningModule(pl.LightningModule):
         specie_loss = self.specie_criterion(specie_logits, batch["specie_label"])
         losses = {
             "total": 10 * viewpoint_loss + klass_loss + specie_loss,
-            "arcface": viewpoint_loss,
+            "viewpoint": viewpoint_loss,
             "klass": klass_loss,
             "specie": specie_loss
         }

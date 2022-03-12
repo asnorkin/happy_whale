@@ -82,7 +82,6 @@ class CameraLightningDataModule(pl.LightningDataModule):
 
         params = {
             "pin_memory": True,
-            "persistent_workers": True,
             "num_workers": self.hparams.num_workers,
         }
 

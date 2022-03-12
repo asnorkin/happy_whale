@@ -2,23 +2,17 @@ import timm
 import torch
 from torch import nn
 
-from pipeline.arcface import ArcMarginProduct, GeM
 
-
-class HappyModel(nn.Module):
+class CameraModel(nn.Module):
     def __init__(
         self,
         model_name,
         num_classes,
         num_species,
-        embedding_size=512,
-        specie_hidden=128,
-        dropout=0.2,
+        viewpoint_hidden=64,
+        specie_hidden=64,
+        dropout=0.5,
         pretrained=True,
-        s=30.0,
-        m=0.5,
-        easy_margin=False,
-        ls_eps=0.0,
         **timm_kwargs
     ):
         super().__init__()
@@ -31,16 +25,13 @@ class HappyModel(nn.Module):
         else:
             raise ValueError(f"Model has no expected head")
 
-        self.model.global_pool = nn.Identity()
-        self.pooling = GeM()
-        self.embedding = nn.Sequential(
-            nn.Linear(in_features, embedding_size),
-            nn.BatchNorm1d(embedding_size),
+        self.viewpoint_head = nn.Sequential(
+            nn.Linear(in_features, viewpoint_hidden),
+            nn.BatchNorm1d(viewpoint_hidden),
             nn.ReLU(),
-            nn.Linear(embedding_size, embedding_size),
             nn.Dropout(dropout),
+            nn.Linear(viewpoint_hidden, num_classes),
         )
-        self.fc = ArcMarginProduct(embedding_size, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
         self.klass_head = nn.Sequential(
             nn.Linear(in_features, 1),
         )
@@ -52,38 +43,20 @@ class HappyModel(nn.Module):
             nn.Linear(specie_hidden, num_species),
         )
 
-    def forward(self, images, labels):
-        features = self.model(images)
-        pooled_features = self.pooling(features).flatten(1)
-
-        # ArcFace
-        embeddings = self.embedding(pooled_features)
-        arcface_logits = self.fc(embeddings, labels)
-
-        # Klass
-        klass_logits = self.klass_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
-
-        # Specie
-        specie_logits = self.specie_head(pooled_features)
-
-        return arcface_logits, klass_logits, specie_logits, embeddings
+    def forward(self, images):
+        x = self.model(images)
+        viewpoint_logits = self.viewpoint_head(x)
+        klass_logits = self.klass_head(x)[:, 0]  # (B, 1) -> (B,)
+        specie_logits = self.specie_head(x)
+        return viewpoint_logits, klass_logits, specie_logits
 
     def predict(self, images):
-        features = self.model(images)
-        pooled_features = self.pooling(features).flatten(1)
-
-        # Embeddings
-        embeddings = self.embedding(pooled_features)
-
-        # Klass
-        klass_logits = self.klass_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
+        viewpoint_logits, klass_logits, specie_logits = self.forward(images)
+        viewpoint_probabilities = viewpoint_logits.softmax(dim=1)
         klass_probabilities = klass_logits.sigmoid()
-
-        # Specie
-        specie_logits = self.specie_head(pooled_features)
         specie_probabilities = specie_logits.softmax(dim=1)
 
-        return klass_probabilities, specie_probabilities, embeddings
+        return viewpoint_probabilities, klass_probabilities, specie_probabilities
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):
@@ -95,13 +68,9 @@ class HappyModel(nn.Module):
             model_name=hparams["model_name"],
             num_classes=hparams["num_classes"],
             num_species=hparams["num_species"],
-            embedding_size=hparams["embedding_size"],
+            viewpoint_hidden=hparams["viewpoint_hidden"],
             specie_hidden=hparams["specie_hidden"],
             dropout=hparams["dropout"],
-            s=hparams["s"],
-            m=hparams["m"],
-            easy_margin=hparams["easy_margin"],
-            ls_eps=hparams["ls_eps"],
         )
         model.load_state_dict(state_dict)
 

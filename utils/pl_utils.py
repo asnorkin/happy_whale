@@ -19,7 +19,7 @@ def tensorboard_logger(args) -> TensorBoardLogger:
 
 
 def wandb_logger(args) -> WandbLogger:
-    return WandbLogger(name=args.experiment, project="happy_whale")
+    return WandbLogger(name=args.experiment, project=args.project)
 
 
 def checkpoint_callback(args):
@@ -55,6 +55,7 @@ def parse_args(parser):
 def add_program_specific_args(parent_parser):
     parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
+    parser.add_argument("--project", type=str, default="happy_whale")
     parser.add_argument("--experiment", type=str, default="train")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--debug", action="store_true")

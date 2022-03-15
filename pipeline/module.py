@@ -145,8 +145,6 @@ class HappyLightningModule(pl.LightningModule):
         individual_labels = _gather("individual_labels").cpu().numpy()
         new = _gather("new").cpu().numpy()
 
-        print(f"Rank: {self.global_rank}, emb: {embeddings.shape}, train: {train_embeddings.shape}")
-
         _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(train_embeddings).T)
         topk_distances, topk_predictions = torch.topk(_distance, k=100, largest=False, dim=1)
         topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()

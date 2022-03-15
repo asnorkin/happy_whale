@@ -1,6 +1,7 @@
 import random
 
 import albumentations as A
+import numpy as np
 import torch
 
 
@@ -25,4 +26,13 @@ class StackImages(A.BasicTransform):
         if (random.random() < self.p) or self.always_apply or force_apply:
             kwargs["image"] = torch.cat((kwargs["image"], kwargs["image_fish"], kwargs["image_fin"]), dim=0)
 
+        return kwargs
+
+
+class ImageDropout(A.BasicTransform):
+    def __call__(self, *args, force_apply=False, **kwargs):
+        if "image_fish" in kwargs and ((random.random() < self.p) or self.always_apply or force_apply):
+            kwargs["image_fish"] = np.zeros_like(kwargs["image"])
+        if "image_fin" in kwargs and ((random.random() < self.p) or self.always_apply or force_apply):
+            kwargs["image_fin"] = np.zeros_like(kwargs["image"])
         return kwargs

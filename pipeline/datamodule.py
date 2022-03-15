@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from albumentations.pytorch.transforms import ToTensorV2
 from torch.utils.data import DataLoader
 
-from pipeline.augmentations import HorizontalFlip, StackImages
+from pipeline.augmentations import HorizontalFlip, ImageDropout, StackImages
 from pipeline.dataset import HappyDataset
 
 
@@ -16,6 +16,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         self.pre_transforms = []
         self.augmentations = [
+            ImageDropout(p=0.1),  # Only for 9 channels training
             # HorizontalFlip(num_classes=self.hparams.num_classes, flip_id=self.hparams.flip_id, p=0.5),
             A.HorizontalFlip(p=0.5),
             A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, border_mode=0, value=0, p=0.5),

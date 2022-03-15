@@ -22,6 +22,7 @@ class HappyModel(nn.Module):
         **timm_kwargs
     ):
         super().__init__()
+
         self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
         for head_name in ["fc", "head", "classifier"]:
             if hasattr(self.model, head_name):

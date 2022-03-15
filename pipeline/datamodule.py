@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from albumentations.pytorch.transforms import ToTensorV2
 from torch.utils.data import DataLoader
 
-from pipeline.augmentations import HorizontalFlip
+from pipeline.augmentations import HorizontalFlip, StackImages
 from pipeline.dataset import HappyDataset
 
 
@@ -25,11 +25,15 @@ class HappyLightningDataModule(pl.LightningDataModule):
                 A.ToGray(p=0.05),
             ], p=0.75),
         ]
+
         self.post_transforms = [
             A.Resize(height=self.hparams.input_height, width=self.hparams.input_width, always_apply=True),
             A.Normalize(always_apply=True),
             ToTensorV2(always_apply=True),
         ]
+
+        if self.hparams.all_images:
+            self.post_transforms.append(StackImages(always_apply=True))
 
         self.train_dataset = None
         self.train_sampler = None
@@ -46,13 +50,18 @@ class HappyLightningDataModule(pl.LightningDataModule):
         train_items = [item for item in items if item["fold"] != self.hparams.fold]
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
+        additional_targets = dict()
+        if self.hparams.all_images:
+            additional_targets["image_fish"] = "image"
+            additional_targets["image_fin"] = "image"
+
         # Train dataset
-        train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms)
-        self.train_dataset = HappyDataset(train_items, train_transform)
+        train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms, additional_targets=additional_targets)
+        self.train_dataset = HappyDataset(train_items, train_transform, load_all_images=self.hparams.all_images)
 
         # Val dataset
-        val_transform = A.Compose(self.pre_transforms + self.post_transforms)
-        self.val_dataset = HappyDataset(val_items, val_transform)
+        val_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets=additional_targets)
+        self.val_dataset = HappyDataset(val_items, val_transform, load_all_images=self.hparams.all_images)
 
     @staticmethod
     def add_data_specific_args(parent_parser):

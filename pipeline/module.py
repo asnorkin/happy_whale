@@ -37,7 +37,9 @@ class HappyLightningModule(pl.LightningModule):
             s=self.hparams.s,
             m=self.hparams.m,
             easy_margin=self.hparams.easy_margin,
-            ls_eps=self.hparams.ls_eps)
+            ls_eps=self.hparams.ls_eps,
+            in_chans=9 if self.hparams.all_images else 3,
+        )
 
         # Placeholders
         self.train_outputs = None
@@ -82,6 +84,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--num_species", type=int, default=26)
         parser.add_argument("--specie_hidden", type=int, default=128)
         parser.add_argument("--flip_id", type=int, default=0)
+        parser.add_argument("--all_images", type=int, default=1)
 
         # Loss
         parser.add_argument("--s", type=float, default=30.0)

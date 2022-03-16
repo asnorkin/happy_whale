@@ -61,6 +61,12 @@ class HappyDataset(ImageItemsDataset):
         else:
             # Only images case
             # Create dummy labels dataframe
+            image_files = []
+            for image_file in os.listdir(images_dir):
+                name, ext = osp.splitext(image_file)
+                if not name.endswith(("_fish", "_fin")):
+                    image_files.append(image_file)
+
             labels_df = pd.DataFrame([{
                 "image": image_file,
                 "klass": -1,
@@ -71,7 +77,7 @@ class HappyDataset(ImageItemsDataset):
                 "individual_label": -1,
                 "fold": -1,
                 "new": -1,
-            } for image_file in os.listdir(images_dir)])
+            } for image_file in image_files])
 
         items, not_found = [], 0
         for i, row in enumerate(tqdm(labels_df.itertuples(), desc="Loading items", unit="item", total=len(labels_df))):

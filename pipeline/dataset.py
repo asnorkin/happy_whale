@@ -16,9 +16,9 @@ class HappyDataset(ImageItemsDataset):
         self.p_fin = p_fin if load_random_image else 1.0
 
     def get_image_file(self, item):
-        if item["image_file_fin"] is not None and np.random.random() < self.p_fin:
+        if item["image_file_fin"] and np.random.random() < self.p_fin:
             image_file = item["image_file_fin"]
-        elif item["image_file_fish"] is not None:
+        elif item["image_file_fish"]:
             image_file = item["image_file_fish"]
         else:
             image_file = item["image_file"]
@@ -28,8 +28,8 @@ class HappyDataset(ImageItemsDataset):
     def __getitem__(self, index):
         item = self.items[index]
         if self.load_all_images:
-            image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] is not None else item["image_file"])
-            image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] is not None else image_fish
+            image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] else item["image_file"])
+            image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else image_fish
 
             item = self.items[index]
             sample = {
@@ -96,8 +96,8 @@ class HappyDataset(ImageItemsDataset):
 
             item = {
                 "image_file": image_file,
-                "image_file_fish": image_file_fish if osp.exists(image_file_fish) else None,
-                "image_file_fin": image_file_fin if osp.exists(image_file_fin) else None,
+                "image_file_fish": image_file_fish if osp.exists(image_file_fish) else "",
+                "image_file_fin": image_file_fin if osp.exists(image_file_fin) else "",
                 "klass": row.klass,
                 "species": row.species,
                 "individual_id": row.individual_id,

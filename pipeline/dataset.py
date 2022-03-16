@@ -13,7 +13,17 @@ class HappyDataset(ImageItemsDataset):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image
-        self.p_fin = p_fin
+        self.p_fin = p_fin if load_random_image else 1.0
+
+    def get_image_file(self, item):
+        if item["image_file_fin"] is not None and np.random.random() < self.p_fin:
+            image_file = item["image_file_fin"]
+        elif item["image_file_fish"] is not None:
+            image_file = item["image_file_fish"]
+        else:
+            image_file = item["image_file"]
+
+        return image_file
 
     def __getitem__(self, index):
         item = self.items[index]
@@ -25,16 +35,6 @@ class HappyDataset(ImageItemsDataset):
             sample = {
                 "image_fish": image_fish,
                 "image_fin": image_fin,
-            }
-
-        elif self.load_random_image:
-            if np.random.random() < self.p_fin and item["image_file_fin"] is not None:
-                image_file = item["image_file_fin"]
-            else:
-                image_file = item["image_file_fish"] if item["image_file_fish"] is not None else item["image_file"]
-
-            sample = {
-                "image": self.load_image(image_file),
             }
 
         else:

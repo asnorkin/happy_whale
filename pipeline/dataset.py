@@ -9,36 +9,39 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=True, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.6, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
+        self.load_random_image = load_random_image
+        self.p_fin = p_fin
 
     def __getitem__(self, index):
-        if not self.load_all_images:
+        item = self.items[index]
+        if self.load_all_images:
+            image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] is not None else item["image_file"])
+            image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] is not None else image_fish
+
+            item = self.items[index]
+            sample = {
+                "image_fish": image_fish,
+                "image_fin": image_fin,
+            }
+
+        elif self.load_random_image:
+            if np.random.random() < self.p_fin and item["image_file_fin"] is not None:
+                image_file = item["image_file_fin"]
+            else:
+                image_file = item["image_file_fish"] if item["image_file_fish"] is not None else item["image_file"]
+
+            sample = {
+                "image": self.load_image(image_file),
+            }
+
+        else:
             return super().__getitem__(index)
 
-        item = self.items[index]
-        images_dir, fname = osp.split(item["image_file"])
-        name, ext = osp.splitext(fname)
-
-        image_full = self.load_image(item["image_file"])
-
-        fish_file = osp.join(images_dir, name + "_fish" + ext)
-        image_fish = np.zeros_like(image_full) if not osp.exists(fish_file) else self.load_image(fish_file)
-
-        fin_file = osp.join(images_dir, name + "_fin" + ext)
-        image_fin = np.zeros_like(image_full) if not osp.exists(fin_file) else self.load_image(fin_file)
-
-        item = self.items[index]
-        sample = {
-            "image": image_full,
-            "image_fish": image_fish,
-            "image_fin": image_fin,
-            "klass_label": item["klass_label"],
-            "specie_label": item["specie_label"],
-            "individual_label": item["individual_label"],
-            "new": item["new"],
-        }
+        for key in ["klass_label", "specie_label", "individual_label", "new"]:
+            sample[key] = item[key]
 
         if self.load_all_fields:
             for key in item.keys():
@@ -59,7 +62,7 @@ class HappyDataset(ImageItemsDataset):
             # Only images case
             # Create dummy labels dataframe
             labels_df = pd.DataFrame([{
-                "image": image_file,
+                "image_file": image_file,
                 "klass": -1,
                 "species": -1,
                 "individual_id": -1,
@@ -80,8 +83,14 @@ class HappyDataset(ImageItemsDataset):
             if debug and len(items) >= 100:
                 break
 
+            name, ext = osp.splitext(row.image)
+            image_file_fish = osp.join(images_dir, name + "_fish" + ext)
+            image_file_fin = osp.join(images_dir, name + "_fin" + ext)
+
             item = {
                 "image_file": image_file,
+                "image_file_fish": image_file_fish if osp.exists(image_file_fish) else None,
+                "image_file_fin": image_file_fin if osp.exists(image_file_fin) else None,
                 "klass": row.klass,
                 "species": row.species,
                 "individual_id": row.individual_id,

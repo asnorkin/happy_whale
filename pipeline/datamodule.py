@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from albumentations.pytorch.transforms import ToTensorV2
 from torch.utils.data import DataLoader
 
-from pipeline.augmentations import HorizontalFlip, ImageDropout, StackImages
+from pipeline.augmentations import StackImages
 from pipeline.dataset import HappyDataset
 
 
@@ -16,8 +16,6 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         self.pre_transforms = []
         self.augmentations = [
-            ImageDropout(p=0.1),  # Only for 9 channels training
-            # HorizontalFlip(num_classes=self.hparams.num_classes, flip_id=self.hparams.flip_id, p=0.5),
             A.HorizontalFlip(p=0.5),
             A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, border_mode=0, value=0, p=0.5),
             A.OneOf([
@@ -58,11 +56,11 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         # Train dataset
         train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms, additional_targets=additional_targets)
-        self.train_dataset = HappyDataset(train_items, train_transform, load_all_images=self.hparams.all_images)
+        self.train_dataset = HappyDataset(train_items, train_transform, load_all_images=self.hparams.all_images, load_random_image=self.hparams.random_image)
 
         # Val dataset
         val_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets=additional_targets)
-        self.val_dataset = HappyDataset(val_items, val_transform, load_all_images=self.hparams.all_images)
+        self.val_dataset = HappyDataset(val_items, val_transform, load_all_images=self.hparams.all_images, load_random_image=False)
 
     @staticmethod
     def add_data_specific_args(parent_parser):

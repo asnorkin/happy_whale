@@ -62,7 +62,7 @@ class HappyDataset(ImageItemsDataset):
             # Only images case
             # Create dummy labels dataframe
             labels_df = pd.DataFrame([{
-                "image_file": image_file,
+                "image": image_file,
                 "klass": -1,
                 "species": -1,
                 "individual_id": -1,

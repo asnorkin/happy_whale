@@ -10,7 +10,7 @@ class CameraDataset(ImageItemsDataset):
     def __getitem__(self, index):
         item = self.items[index]
         sample = {
-            "image": self.load_image(item["image_file"]),
+            "image": self.load_image(self.get_image_file(item)),
             "klass_label": item["klass_label"],
             "specie_label": item["specie_label"],
             "viewpoint_label": item["viewpoint_label"],
@@ -25,6 +25,13 @@ class CameraDataset(ImageItemsDataset):
             sample = self.transform(**sample)
 
         return sample
+
+    def get_image_file(self, item):
+        if item["image_file_fish"]:
+            return item["image_file_fish"]
+        elif item["image_file_fin"]:
+            return item["image_file_fin"]
+        return item["image_file"]
 
     @classmethod
     def load_items(cls, images_dir, labels_csv=None, debug=False):

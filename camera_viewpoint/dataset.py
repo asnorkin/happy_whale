@@ -52,8 +52,14 @@ class CameraDataset(ImageItemsDataset):
             if debug and len(items) >= 100:
                 break
 
+            name, ext = osp.splitext(row.image)
+            image_file_fish = osp.join(images_dir, name + "_fish" + ext)
+            image_file_fin = osp.join(images_dir, name + "_fin" + ext)
+
             item = {
                 "image_file": image_file,
+                "image_file_fish": image_file_fish if osp.exists(image_file_fish) else "",
+                "image_file_fin": image_file_fin if osp.exists(image_file_fin) else "",
                 "viewpoint": row.viewpoint,
                 "klass": row.klass,
                 "species": row.species,

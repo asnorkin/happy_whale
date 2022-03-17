@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 
 from camera_viewpoint.augmentations import CameraHorizontalFlip
 from camera_viewpoint.dataset import CameraDataset
+from camera_viewpoint.sampler import BalancedSpeciesSampler
 
 
 class CameraLightningDataModule(pl.LightningDataModule):
@@ -60,6 +61,7 @@ class CameraLightningDataModule(pl.LightningDataModule):
         # Train dataset
         train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms)
         self.train_dataset = CameraDataset(train_items, train_transform)
+        self.train_sampler = BalancedSpeciesSampler(train_items, batch_size=self.hparams.batch_size)
 
         # Val dataset
         val_transform = A.Compose(self.pre_transforms + self.post_transforms)

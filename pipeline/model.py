@@ -1,5 +1,6 @@
 import timm
 import torch
+from timm.models.layers.conv2d_same import Conv2dSame
 from torch import nn
 
 from pipeline.arcface import ArcMarginProduct, GeM
@@ -19,6 +20,7 @@ class HappyModel(nn.Module):
         m=0.5,
         easy_margin=False,
         ls_eps=0.0,
+        all_images=False,
         **timm_kwargs
     ):
         super().__init__()
@@ -31,6 +33,22 @@ class HappyModel(nn.Module):
                 break
         else:
             raise ValueError(f"Model has no expected head")
+
+        if all_images:
+            n_images = 2
+            conv_stem_grouped = Conv2dSame(
+                in_channels=self.model.conv_stem.in_channels * n_images,
+                out_channels=self.model.conv_stem.out_channels,
+                kernel_size=self.model.conv_stem.kernel_size,
+                stride=self.model.conv_stem.stride,
+                padding=self.model.conv_stem.padding,
+                dilation=self.model.conv_stem.dilation,
+                groups=n_images,
+                bias=(self.model.conv_stem.bias is not None),
+            )
+            conv_stem_grouped.weight = self.model.conv_stem.weight
+            conv_stem_grouped.bias = self.model.conv_stem.bias
+            self.model.conv_stem = conv_stem_grouped
 
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()

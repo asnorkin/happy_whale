@@ -38,7 +38,7 @@ class HappyLightningModule(pl.LightningModule):
             m=self.hparams.m,
             easy_margin=self.hparams.easy_margin,
             ls_eps=self.hparams.ls_eps,
-            in_chans=6 if self.hparams.all_images else 3,
+            all_images=self.hparams.all_images,
         )
 
         # Placeholders

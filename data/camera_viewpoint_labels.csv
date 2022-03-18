@@ -59,7 +59,7 @@ cddc219c740bd3.jpg,6a3af6e0c55c,starboard,humpback_whale,whale,1,1,12,0.0
 07202107f222e6.jpg,d02e92f288fb,port,long_finned_pilot_whale,whale,1,1,14,1.0
 70e6db698b40f5.jpg,ef0ddd083fbe,starboard,killer_whale,whale,1,1,13,0.0
 e83ad8dc38f1fc.jpg,6a3af6e0c55c,port,humpback_whale,whale,4,1,12,1.0
-4015d749c93863.jpg,f0efb5bcc5d3,port,killer_whale,whale,3,1,13,1.0
+4015d749c93863.jpg,f0efb5bcc5d3,starboard,killer_whale,whale,3,1,13,0.0
 bddf67d7cdeba5.jpg,6bf9810d3632,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
 7f8f5d330d88f0.jpg,129a9e2703f0,starboard,dusky_dolphin,dolphin,0,0,7,0.0
 7e2484d2d3cb44.jpg,3a055fad1478,starboard,beluga_whale,whale,3,1,0,0.0
@@ -212,7 +212,7 @@ d62344bc544174.jpg,b71445e27d6f,port,humpback_whale,whale,1,1,12,1.0
 d49aee6094f00d.jpg,ad4eef5e8e81,port,spinner_dolphin,dolphin,4,0,23,1.0
 68a4c60672bd83.jpg,f3026e709e7b,port,blue_whale,whale,3,1,1,1.0
 12ef52d42fea71.jpg,8d49ee3f4bda,starboard,dusky_dolphin,dolphin,2,0,7,0.0
-0d7b50f8fb51f2.jpg,0d73b01c5e77,port,humpback_whale,whale,1,1,12,1.0
+0d7b50f8fb51f2.jpg,0d73b01c5e77,starboard,humpback_whale,whale,1,1,12,0.0
 dc52baa469ec0b.jpg,f87ffb99d3d7,port,short_finned_pilot_whale,whale,3,1,21,1.0
 98a23a17dba783.jpg,19fbb960f07d,port,minke_whale,whale,4,1,16,1.0
 9898db1f6f226a.jpg,c3d2720e07cb,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
@@ -227,7 +227,7 @@ ff150893200c6d.jpg,449e8cfbf6a3,starboard,minke_whale,whale,2,1,16,0.0
 3d0b37fa269afa.jpg,5f48c2296a0e,starboard,bottlenose_dolphin,dolphin,4,0,2,0.0
 700ef48ca2000f.jpg,abbeba14a290,starboard,common_dolphin,dolphin,0,0,5,0.0
 db44a8d7216a73.jpg,44c51745dca2,starboard,dusky_dolphin,dolphin,3,0,7,0.0
-d1b6de90e97735.jpg,4ac23afdb631,starboard,humpback_whale,whale,1,1,12,0.0
+d1b6de90e97735.jpg,4ac23afdb631,port,humpback_whale,whale,1,1,12,1.0
 8c0f0c918362f7.jpg,a52e4ad2dbb3,unclear,beluga_whale,whale,2,1,0,2.0
 001f1a1f22da96.jpg,780fefdb6198,starboard,minke_whale,whale,1,1,16,0.0
 ebe38809039c07.jpg,a118cdf58ef2,starboard,humpback_whale,whale,2,1,12,0.0
@@ -267,8 +267,8 @@ e3423df756f44a.jpg,ca4bce435614,port,bottlenose_dolphin,dolphin,3,0,2,1.0
 3387d61e6758b6.jpg,ee0ca4cf0faf,starboard,false_killer_whale,whale,3,1,8,0.0
 0c9d9d9d485829.jpg,5185e90ddcb1,unclear,beluga_whale,whale,2,1,0,2.0
 285e5a92718e2c.jpg,3db616986dbe,port,dusky_dolphin,dolphin,2,0,7,1.0
-a660641bc27199.jpg,4b8534134eb8,starboard,bottlenose_dolphin,dolphin,1,0,2,0.0
-479247c28398b0.jpg,3321f5c06be6,port,dusky_dolphin,dolphin,2,0,7,1.0
+a660641bc27199.jpg,4b8534134eb8,port,bottlenose_dolphin,dolphin,1,0,2,1.0
+479247c28398b0.jpg,3321f5c06be6,starboard,dusky_dolphin,dolphin,2,0,7,0.0
 52f98f7d6d9781.jpg,51a5929d3acb,port,false_killer_whale,whale,4,1,8,1.0
 eae82af5f26495.jpg,84d91f8c1f99,starboard,false_killer_whale,whale,0,1,8,0.0
 16e7c91c7df5cd.jpg,c989336048ed,starboard,false_killer_whale,whale,0,1,8,0.0
@@ -283,7 +283,7 @@ cb69a388e9fb52.jpg,e33a507393ca,starboard,false_killer_whale,whale,3,1,8,0.0
 4976f760b7eac2.jpg,fb19cc7395ff,starboard,humpback_whale,whale,3,1,12,0.0
 adc760fdd38100.jpg,7eb842d80577,starboard,humpback_whale,whale,1,1,12,0.0
 f1233d55638316.jpg,36c5fb72a9ee,starboard,white_sided_dolphin,dolphin,0,0,25,0.0
-ac0f15577bc0b5.jpg,55bc49748881,unclear,humpback_whale,whale,0,1,12,2.0
+ac0f15577bc0b5.jpg,55bc49748881,port,humpback_whale,whale,0,1,12,1.0
 75e7122ffa2aee.jpg,af02c0601c6e,unclear,beluga_whale,whale,3,1,0,2.0
 4dc8b7992bd332.jpg,ef0ddd083fbe,starboard,killer_whale,whale,4,1,13,0.0
 0d2984495c8f2e.jpg,59bb4b4ec9e0,starboard,false_killer_whale,whale,4,1,8,0.0
@@ -393,7 +393,7 @@ a8f6cd68eb12d3.jpg,d8b77ac57163,port,blue_whale,whale,2,1,1,1.0
 afa0aaa5d17d85.jpg,e4eccbfbe7a1,port,spinner_dolphin,dolphin,3,0,23,1.0
 66e32b044a5a20.jpg,69485fb38f7c,starboard,bottlenose_dolphin,dolphin,4,0,2,0.0
 ba2031628d55c0.jpg,fd983ada9fe2,unclear,beluga_whale,whale,2,1,0,2.0
-f796f8c9be89d2.jpg,4e9033d1aaf4,port,blue_whale,whale,4,1,1,1.0
+f796f8c9be89d2.jpg,4e9033d1aaf4,starboard,blue_whale,whale,4,1,1,0.0
 fa55067a36dc37.jpg,14d9b3310270,port,humpback_whale,whale,1,1,12,1.0
 eb820c96c0f2e3.jpg,284121b723e0,port,melon_headed_whale,whale,0,1,15,1.0
 ab08d73ec07d7b.jpg,ebb6eb7cb3cc,starboard,dusky_dolphin,dolphin,3,0,7,0.0
@@ -450,7 +450,7 @@ ff0312f59cbea9.jpg,59abcc1b41ec,unclear,beluga_whale,whale,2,1,0,2.0
 88ca43780b215f.jpg,c07bc9391caf,starboard,blue_whale,whale,4,1,1,0.0
 4b54836b2dee4c.jpg,aff93d9d3356,port,bottlenose_dolphin,dolphin,2,0,2,1.0
 d4fe7d495dae01.jpg,7485701415cd,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
-8a5e2715f321d6.jpg,d5f6ddf4d595,unclear,bottlenose_dolphin,dolphin,0,0,2,2.0
+8a5e2715f321d6.jpg,d5f6ddf4d595,port,bottlenose_dolphin,dolphin,0,0,2,1.0
 4d0ac8cdd92c40.jpg,a03df8d232dc,starboard,blue_whale,whale,2,1,1,0.0
 9f631000b5cc56.jpg,78acf56901eb,port,spinner_dolphin,dolphin,0,0,23,1.0
 72821adfd9592b.jpg,03285c69375b,starboard,blue_whale,whale,1,1,1,0.0
@@ -517,7 +517,7 @@ ff62f1c7998ca5.jpg,4c6568e0051b,starboard,short_finned_pilot_whale,whale,1,1,21,
 0baf93e57b2926.jpg,16d8befa6a49,starboard,humpback_whale,whale,3,1,12,0.0
 555e1cf7be7f88.jpg,c2705f9e75c8,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
 f240f7402d1c1b.jpg,ab69cc7ac7b3,port,minke_whale,whale,1,1,16,1.0
-0a32fb56190d7c.jpg,2b0ec738b987,starboard,killer_whale,whale,0,1,13,0.0
+0a32fb56190d7c.jpg,2b0ec738b987,port,killer_whale,whale,0,1,13,1.0
 ef79564ca003c3.jpg,6f632b846891,unclear,gray_whale,whale,4,1,11,2.0
 3f39ed49cf2930.jpg,a473d2e88814,starboard,melon_headed_whale,whale,2,1,15,0.0
 b4f39360952118.jpg,0d114bf9979d,starboard,humpback_whale,whale,1,1,12,0.0
@@ -598,7 +598,7 @@ be2aa475567710.jpg,73b86b959bbe,port,dusky_dolphin,dolphin,1,0,7,1.0
 66a29fdb92d8da.jpg,057298157bb6,starboard,commersons_dolphin,dolphin,4,0,4,0.0
 403d1d38c2b802.jpg,5cdd8c0d46d9,port,beluga_whale,whale,1,1,0,1.0
 f7d08e5f9a69db.jpg,f306210d1080,starboard,false_killer_whale,whale,3,1,8,0.0
-1cd81019164299.jpg,197df8b4dfd4,unclear,humpback_whale,whale,0,1,12,2.0
+1cd81019164299.jpg,197df8b4dfd4,starboard,humpback_whale,whale,0,1,12,0.0
 e234223b4b3afb.jpg,de7b84f5b247,starboard,blue_whale,whale,3,1,1,0.0
 b7814471f5acb0.jpg,59abcc1b41ec,unclear,beluga_whale,whale,3,1,0,2.0
 5010009239e4dc.jpg,4ddb2eeb5efb,port,bottlenose_dolphin,dolphin,1,0,2,1.0
@@ -612,7 +612,7 @@ e9c7347f0cf69c.jpg,37c7aba965a5,port,minke_whale,whale,4,1,16,1.0
 3b35d2ef72da1e.jpg,b5e1ee74f22b,starboard,false_killer_whale,whale,0,1,8,0.0
 4d0bcc6aeb2fb7.jpg,1ce1a52ffa22,port,gray_whale,whale,0,1,11,1.0
 a88c39bc288de0.jpg,9e9d7a1c9d4d,unclear,southern_right_whale,whale,3,1,22,2.0
-7446054e411a39.jpg,fc9ed58b159c,starboard,humpback_whale,whale,3,1,12,0.0
+7446054e411a39.jpg,fc9ed58b159c,port,humpback_whale,whale,3,1,12,1.0
 a874439e3c9c51.jpg,9f3613b5c45b,starboard,bottlenose_dolphin,dolphin,3,0,2,0.0
 9d8e49d9c6d3ca.jpg,255682316920,unclear,beluga_whale,whale,3,1,0,2.0
 cb23beb6d0f80c.jpg,a1476df64cb3,port,brydes_whale,whale,4,1,3,1.0
@@ -742,7 +742,7 @@ ebdb13a2b0f858.jpg,71a675cd271b,starboard,gray_whale,whale,0,1,11,0.0
 4020141c71c1c6.jpg,b1d452a519f5,port,dusky_dolphin,dolphin,2,0,7,1.0
 6d2fc5a1cb3a96.jpg,64c398234574,port,bottlenose_dolphin,dolphin,3,0,2,1.0
 fd22cd692e12c4.jpg,cedc801cee3f,starboard,bottlenose_dolphin,dolphin,4,0,2,0.0
-a8a0ba63daa5fa.jpg,04c451d68284,port,bottlenose_dolphin,dolphin,2,0,2,1.0
+a8a0ba63daa5fa.jpg,04c451d68284,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
 9631f53dc9edbe.jpg,d9d7ac20396d,port,melon_headed_whale,whale,0,1,15,1.0
 b401d9d4bbb08a.jpg,0b5c9ba6fd4e,starboard,short_finned_pilot_whale,whale,0,1,21,0.0
 f07cc65df99b01.jpg,3745ef08744d,port,blue_whale,whale,3,1,1,1.0
@@ -958,7 +958,7 @@ a035cda3d87ba2.jpg,01716aebfbd6,port,sei_whale,whale,0,1,20,1.0
 286558b8a9a442.jpg,f195c38bcf17,starboard,bottlenose_dolphin,dolphin,2,0,2,0.0
 bfea11508dcacf.jpg,bd067ad169a6,starboard,southern_right_whale,whale,4,1,22,0.0
 4f030c34979b1e.jpg,dc45f8d65ea1,starboard,humpback_whale,whale,0,1,12,0.0
-ee0a4d8675fc3c.jpg,2de818d19b69,unclear,humpback_whale,whale,0,1,12,2.0
+ee0a4d8675fc3c.jpg,2de818d19b69,port,humpback_whale,whale,0,1,12,1.0
 26cec8b9377daa.jpg,ab469f789fb8,port,blue_whale,whale,1,1,1,1.0
 aaee649e6270b5.jpg,c93996835aa8,starboard,humpback_whale,whale,4,1,12,0.0
 8e9999f2adab81.jpg,024c18cf7b77,port,killer_whale,whale,0,1,13,1.0
@@ -1148,7 +1148,7 @@ b6ceebb2fc55f2.jpg,ed9a7eba9a06,port,dusky_dolphin,dolphin,3,0,7,1.0
 2ba8a37d21e35c.jpg,e33a507393ca,port,false_killer_whale,whale,4,1,8,1.0
 1a17dde58ba276.jpg,03c879f7c6d5,port,humpback_whale,whale,1,1,12,1.0
 a0294a4b6095bf.jpg,a9f87526d3ef,starboard,beluga_whale,whale,0,1,0,0.0
-8a8dcffdc54157.jpg,480677e8cf20,unclear,bottlenose_dolphin,dolphin,3,0,2,2.0
+8a8dcffdc54157.jpg,480677e8cf20,port,bottlenose_dolphin,dolphin,3,0,2,1.0
 96af93c6eb4470.jpg,433d825e2486,starboard,humpback_whale,whale,2,1,12,0.0
 7da958ee7f7d3c.jpg,9f3613b5c45b,unclear,bottlenose_dolphin,dolphin,1,0,2,2.0
 6163e5d2a562f9.jpg,9d876f7cab51,starboard,bottlenose_dolphin,dolphin,3,0,2,0.0
@@ -1189,7 +1189,7 @@ f97c8972d5d1fd.jpg,4e0d7c4225de,port,dusky_dolphin,dolphin,3,0,7,1.0
 4e3ef4afeee53a.jpg,913d5da5ff27,port,beluga_whale,whale,1,1,0,1.0
 d8b9bea685c9fc.jpg,9252fa90a2ba,port,killer_whale,whale,1,1,13,1.0
 59002827068a8a.jpg,37c7aba965a5,port,minke_whale,whale,2,1,16,1.0
-034a778e061801.jpg,c4274d90be60,unclear,humpback_whale,whale,0,1,12,2.0
+034a778e061801.jpg,c4274d90be60,starboard,humpback_whale,whale,0,1,12,0.0
 681851f86f30f4.jpg,595eabd0786a,starboard,humpback_whale,whale,3,1,12,0.0
 e2fc6defda7231.jpg,4091f26464c4,starboard,blue_whale,whale,3,1,1,0.0
 1b7f5f9c22d093.jpg,20916df9f20d,starboard,false_killer_whale,whale,1,1,8,0.0
@@ -1282,7 +1282,7 @@ b88df5cd1772b5.jpg,528c6ef62a74,starboard,false_killer_whale,whale,2,1,8,0.0
 fcc4ab602d1426.jpg,aa126f50c692,port,humpback_whale,whale,2,1,12,1.0
 874607303f2165.jpg,3abb4dbc792f,starboard,bottlenose_dolphin,dolphin,0,0,2,0.0
 ed95fc46b0ce44.jpg,6d92c71242ee,port,beluga_whale,whale,0,1,0,1.0
-21879fec3edf9a.jpg,18f270f6ca16,unclear,humpback_whale,whale,0,1,12,2.0
+21879fec3edf9a.jpg,18f270f6ca16,port,humpback_whale,whale,0,1,12,1.0
 4895e2b46aa757.jpg,bfbe09c06683,starboard,beluga_whale,whale,4,1,0,0.0
 558d96723a3556.jpg,ae4343270756,port,humpback_whale,whale,3,1,12,1.0
 b4386c7a300fac.jpg,47e591d9b820,port,killer_whale,whale,0,1,13,1.0
@@ -1357,7 +1357,7 @@ ac706719d59b0a.jpg,740ce589ff2b,starboard,humpback_whale,whale,4,1,12,0.0
 bd409056798539.jpg,3a8a5f684108,starboard,killer_whale,whale,3,1,13,0.0
 d1a0a1d7cd408d.jpg,7516d7727bcb,starboard,blue_whale,whale,1,1,1,0.0
 a65db00677841b.jpg,17e6e3776b5e,starboard,spinner_dolphin,dolphin,0,0,23,0.0
-280e4d6eb88deb.jpg,03c879f7c6d5,port,humpback_whale,whale,4,1,12,1.0
+280e4d6eb88deb.jpg,03c879f7c6d5,starboard,humpback_whale,whale,4,1,12,0.0
 962dbc612da3f9.jpg,114207cab555,starboard,minke_whale,whale,4,1,16,0.0
 cf1355df40ce51.jpg,114207cab555,port,minke_whale,whale,4,1,16,1.0
 ae69a7a124f41e.jpg,b65b4c3cc30e,starboard,melon_headed_whale,whale,1,1,15,0.0
@@ -1542,14 +1542,14 @@ fcc4144e6219f9.jpg,0c76cab3a603,port,humpback_whale,whale,0,1,12,1.0
 75d446f23e7d35.jpg,851a09c20be2,port,brydes_whale,whale,1,1,3,1.0
 b3c620860724ec.jpg,812be36c2aef,starboard,bottlenose_dolphin,dolphin,4,0,2,0.0
 464eda1d65cb65.jpg,b274410ea515,starboard,white_sided_dolphin,dolphin,2,0,25,0.0
-bdbabce3f48573.jpg,bbeac4b2964e,starboard,humpback_whale,whale,0,1,12,0.0
+bdbabce3f48573.jpg,bbeac4b2964e,unclear,humpback_whale,whale,0,1,12,2.0
 c1daf791b1c7dc.jpg,956a82268bd9,starboard,killer_whale,whale,2,1,13,0.0
 f569bdda4eb297.jpg,7c716084d706,starboard,spinner_dolphin,dolphin,1,0,23,0.0
 2b6554a1cd8434.jpg,22df13dec9ef,starboard,common_dolphin,dolphin,3,0,5,0.0
 c40b14a7d65ca1.jpg,14d9b3310270,port,humpback_whale,whale,4,1,12,1.0
 beefc6d9ff4e91.jpg,73a9c0c18e16,starboard,humpback_whale,whale,4,1,12,0.0
 c8c54ef6c144eb.jpg,5f2296c18e26,port,common_dolphin,dolphin,1,0,5,1.0
-e36d9aa9d90e57.jpg,f7f671f97d49,starboard,humpback_whale,whale,0,1,12,0.0
+e36d9aa9d90e57.jpg,f7f671f97d49,unclear,humpback_whale,whale,0,1,12,2.0
 8d9c88704e9942.jpg,ef0f112e4074,port,blue_whale,whale,2,1,1,1.0
 808951d785a6c3.jpg,7ab088d6fdb5,port,short_finned_pilot_whale,whale,2,1,21,1.0
 33d903ecefe86a.jpg,7661d208bc83,port,humpback_whale,whale,2,1,12,1.0
@@ -1600,7 +1600,7 @@ c7b062227d3ebf.jpg,79c94459ece0,unclear,beluga_whale,whale,2,1,0,2.0
 4a85a266ace91b.jpg,c79c5cae749f,port,bottlenose_dolphin,dolphin,1,0,2,1.0
 fdc1e3a5a0d5a7.jpg,8dfe7d8023f4,starboard,dusky_dolphin,dolphin,4,0,7,0.0
 7b81889a56ed13.jpg,3d9602f01444,starboard,killer_whale,whale,0,1,13,0.0
-f2057dacc7d258.jpg,180c0ab04dcd,port,fin_whale,whale,0,1,9,1.0
+f2057dacc7d258.jpg,180c0ab04dcd,unclear,fin_whale,whale,0,1,9,2.0
 e882358b9ffb8d.jpg,34cfeb4ba8ee,port,humpback_whale,whale,2,1,12,1.0
 1bc0624de30c2f.jpg,aa6882526c27,starboard,beluga_whale,whale,4,1,0,0.0
 234fec23e72487.jpg,d2194cb372a9,starboard,dusky_dolphin,dolphin,4,0,7,0.0

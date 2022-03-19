@@ -80,7 +80,7 @@ class HappyDataset(ImageItemsDataset):
                 "individual_label": -1,
                 "fold": -1,
                 "new": -1,
-                "iou": -1,
+                "iou_v2": -1,
             } for image_file in image_files])
 
         items, not_found = [], 0

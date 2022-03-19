@@ -204,7 +204,7 @@ class HappyLightningModule(pl.LightningModule):
         self.log(f"map@5", best_map5, prog_bar=True, logger=False)
         self.log(f"kf1", klass_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
         self.log(f"sf1", specie_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
-        self.log(f"sf1", crop_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
+        self.log(f"cf1", crop_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
 
         # Logger
         self.log(f"metrics/{stage}_map@1", best_map1, prog_bar=False, logger=True)

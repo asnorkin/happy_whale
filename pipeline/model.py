@@ -132,6 +132,10 @@ class HappyModel(nn.Module):
             easy_margin=hparams["easy_margin"],
             ls_eps=hparams["ls_eps"],
         )
-        model.load_state_dict(state_dict)
+        result = model.load_state_dict(state_dict, strict=False)
+        if result.missing_keys:
+            print(f"[WARNING] Missing keys: {result.missing_keys}")
+        if result.unexpected_keys:
+            print(f"[WARNING] Unexpected keys: {result.unexpected_keys}")
 
         return model

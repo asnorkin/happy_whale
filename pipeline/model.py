@@ -70,6 +70,9 @@ class HappyModel(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(specie_hidden, num_species),
         )
+        self.crop_head = nn.Sequential(
+            nn.Linear(in_features, 1),
+        )
 
     def forward(self, images, labels):
         features = self.model(images)
@@ -85,7 +88,10 @@ class HappyModel(nn.Module):
         # Specie
         specie_logits = self.specie_head(pooled_features)
 
-        return arcface_logits, klass_logits, specie_logits, embeddings
+        # Crop
+        crop_logits = self.crop_head(pooled_features)[:, 0] # (B, 1) -> (B,)
+
+        return arcface_logits, klass_logits, specie_logits, crop_logits, embeddings
 
     def predict(self, images):
         features = self.model(images)
@@ -102,7 +108,11 @@ class HappyModel(nn.Module):
         specie_logits = self.specie_head(pooled_features)
         specie_probabilities = specie_logits.softmax(dim=1)
 
-        return klass_probabilities, specie_probabilities, embeddings
+        # Crop
+        crop_logits = self.crop_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
+        crop_probabilities = crop_logits.sigmoid()
+
+        return klass_probabilities, specie_probabilities, crop_probabilities, embeddings
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):

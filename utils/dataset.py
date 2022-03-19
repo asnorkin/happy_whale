@@ -13,12 +13,14 @@ class ImageItemsDataset(Dataset):
 
     def __getitem__(self, index):
         item = self.items[index]
+        image_file, crop_label = self.get_image_file(item)
         sample = {
-            "image": self.load_image(self.get_image_file(item)),
+            "image": self.load_image(image_file),
             "klass_label": item["klass_label"],
             "specie_label": item["specie_label"],
             "individual_label": item["individual_label"],
             "new": item["new"],
+            "crop_label": crop_label,
         }
 
         if self.load_all_fields:
@@ -32,7 +34,7 @@ class ImageItemsDataset(Dataset):
         return sample
 
     def get_image_file(self, item):
-        return item["image_file"]
+        return item["image_file"], 0
 
     @classmethod
     def create(cls, images_dir, labels_csv=None, debug=False, **init_kwargs):

@@ -23,6 +23,8 @@ class HappyLightningModule(pl.LightningModule):
         self.arcface_criterion = nn.CrossEntropyLoss()
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
+        self.crop_criterion = nn.BCEWithLogitsLoss()
+        self.crop_weight = 1.0 - int(self.hparams.all_images)  # Do not use crop loss for --all_images=1 case
 
         num_classes = self.hparams.num_classes
         if self.hparams.flip_id:
@@ -143,6 +145,8 @@ class HappyLightningModule(pl.LightningModule):
         klass_labels = _gather("klass_labels").cpu().numpy()
         specie_probabilities = _gather("specie_probabilities").cpu().numpy()
         specie_labels = _gather("specie_labels").cpu().numpy()
+        crop_probabilities = _gather("crop_probabilities").cpu().numpy()
+        crop_labels = _gather("crop_labels").cpu().numpy()
         individual_labels = _gather("individual_labels").cpu().numpy()
         new = _gather("new").cpu().numpy()
 
@@ -190,11 +194,17 @@ class HappyLightningModule(pl.LightningModule):
         specie_predictions = np.argmax(specie_probabilities, axis=1)
         specie_metrics = classification_report(specie_labels, specie_predictions, output_dict=True, zero_division=0)
 
+        # Crop metrics
+        crop_threshold = 0.5
+        crop_predictions = (crop_probabilities > crop_threshold).astype(int)
+        crop_metrics = classification_report(crop_labels, crop_predictions, output_dict=True, zero_division=0)
+
         # Progress Bar
         self.log(f"map@1", best_map1, prog_bar=True, logger=False)
         self.log(f"map@5", best_map5, prog_bar=True, logger=False)
         self.log(f"kf1", klass_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
         self.log(f"sf1", specie_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
+        self.log(f"sf1", crop_metrics["macro avg"]["f1-score"], prog_bar=True, logger=False)
 
         # Logger
         self.log(f"metrics/{stage}_map@1", best_map1, prog_bar=False, logger=True)
@@ -202,19 +212,24 @@ class HappyLightningModule(pl.LightningModule):
         self.log(f"metrics/{stage}_new_threshold", best_thresh, prog_bar=False, logger=True)
         self.log(f"metrics/{stage}_klass_f1", klass_metrics["macro avg"]["f1-score"], prog_bar=False, logger=True)
         self.log(f"metrics/{stage}_specie_f1", specie_metrics["macro avg"]["f1-score"], prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_crop_f1", crop_metrics["macro avg"]["f1-score"], prog_bar=False, logger=True)
 
     def _step(self, batch, _batch_idx, stage):
-        arcface_logits, klass_logits, specie_logits, embeddings = self.forward(batch["image"], batch["individual_label"])
+        arcface_logits, klass_logits, specie_logits, crop_logits, embeddings = \
+            self.forward(batch["image"], batch["individual_label"])
 
         # Losses
         arcface_loss = self.arcface_criterion(arcface_logits, batch["individual_label"])
         klass_loss = self.klass_criterion(klass_logits, batch["klass_label"].float())
         specie_loss = self.specie_criterion(specie_logits, batch["specie_label"])
+        crop_loss = self.crop_criterion(crop_logits, batch["crop_label"].float())
+
         losses = {
-            "total": arcface_loss + klass_loss + specie_loss,
+            "total": arcface_loss + klass_loss + specie_loss + self.crop_weight * crop_loss,
             "arcface": arcface_loss,
             "klass": klass_loss,
-            "specie": specie_loss
+            "specie": specie_loss,
+            "crop": crop_loss,
         }
 
         metrics = dict()
@@ -225,6 +240,7 @@ class HappyLightningModule(pl.LightningModule):
                 "embeddings": embeddings.detach().cpu(),
                 "individual_labels": batch["individual_label"].detach().cpu(),
                 "klass_labels": batch["klass_label"].detach().cpu(),
+                "crop_labels": batch["crop_label"].detach().cpu(),
             })
             return losses["total"]
 
@@ -232,9 +248,11 @@ class HappyLightningModule(pl.LightningModule):
             "embeddings": embeddings.detach().cpu(),
             "klass_probabilities": klass_logits.detach().sigmoid().cpu(),
             "specie_probabilities": specie_logits.detach().softmax(dim=1).cpu(),
+            "crop_probabilities": crop_logits.detach().sigmoid().cpu(),
             "individual_labels": batch["individual_label"].detach().cpu(),
             "klass_labels": batch["klass_label"].detach().cpu(),
             "specie_labels": batch["specie_label"].detach().cpu(),
+            "crop_labels": batch["crop_label"].detach().cpu(),
             "new": batch["new"].detach().cpu(),
         }
 

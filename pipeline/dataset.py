@@ -16,14 +16,16 @@ class HappyDataset(ImageItemsDataset):
         self.p_fin = p_fin if load_random_image else 1.0
 
     def get_image_file(self, item):
+        crop_label = int(item["iou"] > 0.8)
         if item["image_file_fin"] and np.random.random() < self.p_fin:
             image_file = item["image_file_fin"]
+            crop_label = 1
         elif item["image_file_fish"]:
             image_file = item["image_file_fish"]
         else:
             image_file = item["image_file"]
 
-        return image_file
+        return image_file, crop_label
 
     def __getitem__(self, index):
         item = self.items[index]
@@ -78,6 +80,7 @@ class HappyDataset(ImageItemsDataset):
                 "individual_label": -1,
                 "fold": -1,
                 "new": -1,
+                "iou": -1,
             } for image_file in image_files])
 
         items, not_found = [], 0
@@ -106,6 +109,7 @@ class HappyDataset(ImageItemsDataset):
                 "individual_label": row.individual_label,
                 "fold": row.fold,
                 "new": row.new,
+                "iou": row.iou_v2,
             }
             items.append(item)
 

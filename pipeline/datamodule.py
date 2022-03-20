@@ -50,6 +50,10 @@ class HappyLightningDataModule(pl.LightningDataModule):
         self.test_dataset = None
 
     def setup(self, stage=None):
+        # DataModule already configured
+        if stage == "test":
+            return
+
         items = HappyDataset.load_items(
             images_dir=self.hparams.images_dir,
             labels_csv=self.hparams.labels_csv,

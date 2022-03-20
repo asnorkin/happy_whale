@@ -21,15 +21,15 @@ def train(args):
     datamodule = HappyLightningDataModule(**vars(args))
     module = HappyLightningModule(**vars(args))
 
-    logger = wandb_logger(args)
-
     callbacks = []
     ckpt_callback = checkpoint_callback(args)
     callbacks.append(ckpt_callback)
     callbacks.append(lr_monitor_callback())
 
-    trainer = pl.Trainer.from_argparse_args(
-        args, callbacks=callbacks, logger=logger, plugins=DDPPlugin(find_unused_parameters=False))
+    logger = wandb_logger(args)
+    plugins = DDPPlugin(find_unused_parameters=False)
+
+    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger, plugins=plugins)
     trainer.fit(module, datamodule=datamodule)
 
     # module = HappyLightningModule.load_from_checkpoint(ckpt_callback.best_model_path)

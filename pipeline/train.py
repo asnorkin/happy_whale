@@ -1,5 +1,5 @@
 import pytorch_lightning as pl
-import torch
+from pytorch_lightning.plugins import DDPPlugin
 
 from pipeline.datamodule import HappyLightningDataModule
 from pipeline.module import HappyLightningModule
@@ -28,7 +28,8 @@ def train(args):
     callbacks.append(ckpt_callback)
     callbacks.append(lr_monitor_callback())
 
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger)
+    trainer = pl.Trainer.from_argparse_args(
+        args, callbacks=callbacks, logger=logger, plugins=DDPPlugin(find_unused_parameters=False))
     trainer.fit(module, datamodule=datamodule)
 
     # module = HappyLightningModule.load_from_checkpoint(ckpt_callback.best_model_path)

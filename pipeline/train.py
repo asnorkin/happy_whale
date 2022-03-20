@@ -31,11 +31,11 @@ def train(args):
     trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger)
     trainer.fit(module, datamodule=datamodule)
 
-    module = HappyLightningModule.load_from_checkpoint(ckpt_callback.best_model_path)
-    trainer.test(module, dataloaders=datamodule.test_dataloader())
+    # module = HappyLightningModule.load_from_checkpoint(ckpt_callback.best_model_path)
+    # trainer.test(module, dataloaders=datamodule.test_dataloader())
 
-    print(f"Best model thresh: {module.best_model_thresh:.3f}")
-    print(f"Best model score: {module.best_model_score:.3f}")
+    # print(f"Best model thresh: {module.best_model_thresh:.3f}")
+    print(f"Best model score: {ckpt_callback.best_model_score:.3f}")
     print(f"Best model path: {ckpt_callback.best_model_path}")
 
 

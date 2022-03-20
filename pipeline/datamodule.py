@@ -93,7 +93,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         return parser
 
     def train_dataloader(self):
-        return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True)
+        return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True, drop_last=True)
 
     def val_dataloader(self):
         return self._dataloader(self.val_dataset, self.val_sampler)
@@ -101,7 +101,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
     def test_dataloader(self):
         return self._dataloader(self.test_dataset)
 
-    def _dataloader(self, dataset, batch_sampler=None, shuffle=False, batch_size=None):
+    def _dataloader(self, dataset, batch_sampler=None, shuffle=False, batch_size=None, drop_last=False):
         if batch_size is None:
             batch_size = self.hparams.batch_size
 
@@ -116,6 +116,6 @@ class HappyLightningDataModule(pl.LightningDataModule):
         else:
             params["batch_size"] = batch_size
             params["shuffle"] = shuffle
-            params["drop_last"] = True
+            params["drop_last"] = drop_last
 
         return DataLoader(dataset, **params)

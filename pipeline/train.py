@@ -31,7 +31,7 @@ def train(args):
     trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger)
     trainer.fit(module, datamodule=datamodule)
 
-    module.load_state_dict(torch.load(ckpt_callback.best_model_path)["state_dict"])
+    module = HappyLightningModule.load_from_checkpoint(ckpt_callback.best_model_path)
     trainer.test(module, dataloaders=datamodule.test_dataloader())
 
     print(f"Best model thresh: {module.best_model_thresh:.3f}")

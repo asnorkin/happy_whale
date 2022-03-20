@@ -169,13 +169,13 @@ class HappyLightningModule(pl.LightningModule):
         return self._step(batch, batch_idx, stage="val")
 
     def test_step(self, batch, batch_idx):
-        klass_probs_fin, specie_probs_fin, _, embeddings_fin = self.model.predict(batch["image_fin"])
+        klass_probs_fin, specie_probs_fin, _, embeddings_fin = self.model.predict(batch["image"])
         klass_probs_fish, specie_probs_fish, _, embeddings_fish = self.model.predict(batch["image_fish"])
 
         def _hflip(tensor):
             return torch.flip(tensor, dims=(3,))
 
-        klass_probs_fin_hflip, specie_probs_fin_hflip, _, embeddings_fin_hflip = self.model.predict(_hflip(batch["image_fin"]))
+        klass_probs_fin_hflip, specie_probs_fin_hflip, _, embeddings_fin_hflip = self.model.predict(_hflip(batch["image"]))
         klass_probs_fish_hflip, specie_probs_fish_hflip, _, embeddings_fish_hflip = self.model.predict(_hflip(batch["image_fish"]))
 
         klass_probs = torch.stack((klass_probs_fin, klass_probs_fish, klass_probs_fin_hflip, klass_probs_fish_hflip), dim=1)

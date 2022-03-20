@@ -65,7 +65,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         additional_targets = dict()
         if self.hparams.all_images:
             additional_targets["image_fish"] = "image"
-            additional_targets["image_fin"] = "image"
+            # additional_targets["image_fin"] = "image"
 
         # Train dataset
         train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms, additional_targets=additional_targets)
@@ -76,7 +76,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         self.val_dataset = HappyDataset(val_items, val_transform, load_all_images=self.hparams.all_images, load_random_image=False)
 
         # Test dataset
-        test_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets={"image_fish": "image", "image_fin": "image"})
+        test_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets={"image_fish": "image"})
         self.test_dataset = HappyDataset(items, test_transform, load_all_images=True, load_random_image=False)
 
     @staticmethod

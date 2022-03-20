@@ -24,7 +24,7 @@ class StackImages(A.BasicTransform):
 
     def __call__(self, *args, force_apply=False, **kwargs):
         if (random.random() < self.p) or self.always_apply or force_apply:
-            kwargs["image"] = torch.cat((kwargs["image_fish"], kwargs["image_fin"]), dim=0)
+            kwargs["image"] = torch.cat((kwargs["image_fish"], kwargs["image"]), dim=0)
 
         return kwargs
 

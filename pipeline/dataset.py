@@ -37,7 +37,7 @@ class HappyDataset(ImageItemsDataset):
             sample = {
                 "image": image_fin,  # For albumentations compatibility
                 "image_fish": image_fish,
-                "image_fin": image_fin,
+                # "image_fin": image_fin,
             }
 
         else:

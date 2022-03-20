@@ -1,4 +1,5 @@
 import pytorch_lightning as pl
+import torch
 
 from pipeline.datamodule import HappyLightningDataModule
 from pipeline.module import HappyLightningModule
@@ -30,7 +31,11 @@ def train(args):
     trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks, logger=logger)
     trainer.fit(module, datamodule=datamodule)
 
-    print(f"Best model score: {ckpt_callback.best_model_score:.3f}")
+    module.load_state_dict(torch.load(ckpt_callback.best_model_path)["state_dict"])
+    trainer.test(module, dataloaders=datamodule.test_dataloader())
+
+    print(f"Best model thresh: {module.best_model_thresh:.3f}")
+    print(f"Best model score: {module.best_model_score:.3f}")
     print(f"Best model path: {ckpt_callback.best_model_path}")
 
 

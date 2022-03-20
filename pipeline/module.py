@@ -1,3 +1,4 @@
+import os.path as osp
 from argparse import ArgumentParser
 from math import ceil
 
@@ -13,6 +14,55 @@ from torch.optim.lr_scheduler import OneCycleLR
 
 from pipeline.metric import map_per_set
 from pipeline.model import HappyModel
+
+
+def find_best_map(
+        val_embeddings,
+        train_embeddings,
+        val_labels,
+        train_labels,
+        new,
+        t_min=0.2,
+        t_max=0.66,
+        t_step=0.05
+):
+    K = 5
+
+    _distance = 1 - torch.mm(F.normalize(val_embeddings), F.normalize(train_embeddings).T)
+    topk_distances, topk_predictions = torch.topk(_distance, k=min(100, *_distance.shape), largest=False, dim=1)
+    topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()
+
+    best_thresh, best_map5, best_map1 = t_min, 0, 0
+    for new_thresh in np.arange(t_min, t_max, t_step):
+        predictions = []
+        for i, (preds, dists) in enumerate(zip(topk_predictions, topk_distances)):
+            pred_ids = train_labels[preds].tolist()
+
+            # Remove duplicates
+            seen = set()
+            _pred_ids, _dists = [], []
+            for pid, di in zip(pred_ids, dists):
+                if pid in seen:
+                    continue
+                seen.add(pid)
+                _pred_ids.append(pid)
+                _dists.append(di)
+            pred_ids, dists = _pred_ids[:K], _dists[:K]
+
+            # Add new_individual
+            if dists[-1] > new_thresh:
+                new_i = min(i for i, d in enumerate(dists) if d > new_thresh)
+                new_pred = val_labels[i] if new[i] else -1
+                pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
+
+            predictions.append(pred_ids)
+
+        map1 = map_per_set(val_labels, predictions, topk=1)
+        map5 = map_per_set(val_labels, predictions, topk=K)
+        if (map5, map1) > (best_map5, best_map1):
+            best_thresh, best_map5, best_map1 = new_thresh, map5, map1
+
+    return best_thresh, best_map5, best_map1
 
 
 class HappyLightningModule(pl.LightningModule):
@@ -45,6 +95,8 @@ class HappyLightningModule(pl.LightningModule):
 
         # Placeholders
         self.train_outputs = None
+        self.best_model_score = None
+        self.best_model_thresh = None
 
     def forward(self, images, labels):
         return self.model.forward(images, labels)
@@ -116,74 +168,88 @@ class HappyLightningModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         return self._step(batch, batch_idx, stage="val")
 
+    def test_step(self, batch, batch_idx):
+        klass_probs_fin, specie_probs_fin, _, embeddings_fin = self.model.predict(batch["image_fin"])
+        klass_probs_fish, specie_probs_fish, _, embeddings_fish = self.model.predict(batch["image_fish"])
+
+        def _hflip(tensor):
+            return torch.flip(tensor, dims=(3,))
+
+        klass_probs_fin_hflip, specie_probs_fin_hflip, _, embeddings_fin_hflip = self.model.predict(_hflip(batch["image_fin"]))
+        klass_probs_fish_hflip, specie_probs_fish_hflip, _, embeddings_fish_hflip = self.model.predict(_hflip(batch["image_fish"]))
+
+        klass_probs = torch.stack((klass_probs_fin, klass_probs_fish, klass_probs_fin_hflip, klass_probs_fish_hflip), dim=1)
+        specie_probs = torch.stack((specie_probs_fin, specie_probs_fish, specie_probs_fin_hflip, specie_probs_fish_hflip), dim=1)
+        embeddings = torch.stack((embeddings_fin, embeddings_fish, embeddings_fin_hflip, embeddings_fish_hflip), dim=1)
+
+        return {
+            "klass_probs": klass_probs,
+            "specie_probs": specie_probs,
+            "embeddings": embeddings,
+            "individual_labels": batch["individual_label"],
+            "fold": batch["fold"],
+            "new": batch["new"],
+        }
+
+    def test_epoch_end(self, outputs):
+        stage = "test"
+
+        klass_probs = self._gather("klass_probs", outs=outputs).cpu().float()
+        specie_probs = self._gather("specie_probs", outs=outputs).cpu().float()
+        embeddings = self._gather("embeddings", outs=outputs).cpu().float()
+        individual_labels = self._gather("individual_labels", outs=outputs).cpu().numpy()
+        new = self._gather("new", outs=outputs).cpu().numpy()
+        fold = self._gather("fold", outs=outputs).cpu().numpy()
+
+        torch.save(embeddings, osp.join(self.hparams.checkpoints_dir, "embeddings.pt"))
+        torch.save(klass_probs, osp.join(self.hparams.checkpoints_dir, "klass_probs.pt"))
+        torch.save(specie_probs, osp.join(self.hparams.checkpoints_dir, "specie_probs.pt"))
+
+        train_indices = np.where(fold != self.hparams.fold)[0]
+        val_indices = np.where(fold == self.hparams.fold)[0]
+
+        embeddings = F.normalize(embeddings, dim=2).mean(dim=1)
+
+        best_thresh, best_map5, best_map1 = find_best_map(
+            embeddings[train_indices],
+            embeddings[val_indices],
+            individual_labels[train_indices],
+            individual_labels[val_indices],
+            new
+        )
+
+        self.best_model_score = best_map5
+        self.best_model_thresh = best_thresh
+
+        self.log(f"metrics/{stage}_map@1", best_map1, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_map@5", best_map5, prog_bar=False, logger=True)
+        self.log(f"metrics/{stage}_new_threshold", best_thresh, prog_bar=False, logger=True)
+
     def on_train_epoch_start(self):
         self.train_outputs = []
 
     def validation_epoch_end(self, outputs):
         stage = "val"
 
-        def _gather(key, outs=outputs):
-            node_values = torch.concat([torch.as_tensor(output[key]).to(self.device) for output in outs])
-            if self.trainer.world_size == 1:
-                return node_values
-
-            all_values = [torch.zeros_like(node_values) for _ in range(self.trainer.world_size)]
-            dist.barrier()
-            dist.all_gather(all_values, node_values)
-            all_values = torch.cat(all_values)
-            return all_values
-
         if not self.train_outputs:
             self.print("self.train_outputs is empty!! Skip validation metrics.")
             return
 
-        train_embeddings = _gather("embeddings", outs=self.train_outputs).cpu().float()
-        train_labels = _gather("individual_labels", outs=self.train_outputs).cpu().numpy()
+        train_embeddings = self._gather("embeddings", outs=self.train_outputs).cpu().float()
+        train_labels = self._gather("individual_labels", outs=self.train_outputs).cpu().numpy()
 
-        embeddings = _gather("embeddings").cpu().float()
-        klass_probabilities = _gather("klass_probabilities").cpu().numpy()
-        klass_labels = _gather("klass_labels").cpu().numpy()
-        specie_probabilities = _gather("specie_probabilities").cpu().numpy()
-        specie_labels = _gather("specie_labels").cpu().numpy()
-        crop_probabilities = _gather("crop_probabilities").cpu().numpy()
-        crop_labels = _gather("crop_labels").cpu().numpy()
-        individual_labels = _gather("individual_labels").cpu().numpy()
-        new = _gather("new").cpu().numpy()
+        embeddings = self._gather("embeddings", outs=outputs).cpu().float()
+        klass_probabilities = self._gather("klass_probabilities", outs=outputs).cpu().numpy()
+        klass_labels = self._gather("klass_labels", outs=outputs).cpu().numpy()
+        specie_probabilities = self._gather("specie_probabilities", outs=outputs).cpu().numpy()
+        specie_labels = self._gather("specie_labels", outs=outputs).cpu().numpy()
+        crop_probabilities = self._gather("crop_probabilities", outs=outputs).cpu().numpy()
+        crop_labels = self._gather("crop_labels", outs=outputs).cpu().numpy()
+        individual_labels = self._gather("individual_labels", outs=outputs).cpu().numpy()
+        new = self._gather("new", outs=outputs).cpu().numpy()
 
-        _distance = 1 - torch.mm(F.normalize(embeddings), F.normalize(train_embeddings).T)
-        topk_distances, topk_predictions = torch.topk(_distance, k=100, largest=False, dim=1)
-        topk_distances, topk_predictions = topk_distances.numpy(), topk_predictions.numpy()
-
-        k = 5
-        best_thresh, best_map5, best_map1 = 0.2, 0, 0
-        for new_thresh in np.arange(0.2, 1.01, 0.05):
-            predictions = []
-            for i, (preds, dists) in enumerate(zip(topk_predictions, topk_distances)):
-                pred_ids = train_labels[preds].tolist()
-
-                # Remove duplicates
-                seen = set()
-                _pred_ids, _dists = [], []
-                for pid, di in zip(pred_ids, dists):
-                    if pid in seen:
-                        continue
-                    seen.add(pid)
-                    _pred_ids.append(pid)
-                    _dists.append(di)
-                pred_ids, dists = _pred_ids[:k], _dists[:k]
-
-                # Add new_individual
-                if dists[-1] > new_thresh:
-                    new_i = min(i for i, d in enumerate(dists) if d > new_thresh)
-                    new_pred = individual_labels[i] if new[i] else -1
-                    pred_ids = pred_ids[:new_i] + [new_pred] + pred_ids[new_i:-1]
-
-                predictions.append(pred_ids)
-
-            map1 = map_per_set(individual_labels, predictions, topk=1)
-            map5 = map_per_set(individual_labels, predictions, topk=5)
-            if (map5, map1) > (best_map5, best_map1):
-                best_thresh, best_map5, best_map1 = new_thresh, map5, map1
+        best_thresh, best_map5, best_map1 = find_best_map(
+            embeddings, train_embeddings, individual_labels, train_labels, new)
 
         # Klass metrics
         klass_threshold = 0.5
@@ -268,3 +334,14 @@ class HappyLightningModule(pl.LightningModule):
         for lname, lval in losses.items():
             logs[f"losses/{stage}_{lname}"] = lval
         self.log_dict(logs, prog_bar=False, logger=True)
+
+    def _gather(self, key, outs):
+        node_values = torch.concat([torch.as_tensor(output[key]).to(self.device) for output in outs])
+        if self.trainer.world_size == 1:
+            return node_values
+
+        all_values = [torch.zeros_like(node_values) for _ in range(self.trainer.world_size)]
+        dist.barrier()
+        dist.all_gather(all_values, node_values)
+        all_values = torch.cat(all_values)
+        return all_values

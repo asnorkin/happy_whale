@@ -17,12 +17,19 @@ class HappyLightningDataModule(pl.LightningDataModule):
         self.pre_transforms = []
         self.augmentations = [
             A.HorizontalFlip(p=0.5),
-            A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, border_mode=0, value=0, p=0.5),
+            A.OneOf([
+                A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.15, rotate_limit=30, border_mode=0, value=0, p=0.5),
+                A.Perspective(p=0.1),
+            ], p=0.5),
             A.OneOf([
                 A.HueSaturationValue(hue_shift_limit=20, sat_shift_limit=50, val_shift_limit=20, p=0.5),
                 A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
                 A.ToGray(p=0.05),
             ], p=0.75),
+            A.OneOf([
+                A.MultiplicativeNoise(p=0.5, elementwise=True, per_channel=True),
+                A.GaussianBlur(p=0.5),
+            ], p=0.2),
         ]
 
         self.post_transforms = [
@@ -39,6 +46,8 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         self.val_dataset = None
         self.val_sampler = None
+
+        self.test_dataset = None
 
     def setup(self, stage=None):
         items = HappyDataset.load_items(
@@ -62,6 +71,10 @@ class HappyLightningDataModule(pl.LightningDataModule):
         val_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets=additional_targets)
         self.val_dataset = HappyDataset(val_items, val_transform, load_all_images=self.hparams.all_images, load_random_image=False)
 
+        # Test dataset
+        test_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets={"image_fish": "image", "image_fin": "image"})
+        self.test_dataset = HappyDataset(items, test_transform, load_all_images=True, load_random_image=False)
+
     @staticmethod
     def add_data_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
@@ -84,6 +97,9 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
     def val_dataloader(self):
         return self._dataloader(self.val_dataset, self.val_sampler)
+
+    def test_dataloader(self):
+        return self._dataloader(self.test_dataset)
 
     def _dataloader(self, dataset, batch_sampler=None, shuffle=False, batch_size=None):
         if batch_size is None:

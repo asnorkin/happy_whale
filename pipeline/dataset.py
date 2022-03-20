@@ -43,7 +43,7 @@ class HappyDataset(ImageItemsDataset):
         else:
             return super().__getitem__(index)
 
-        for key in ["klass_label", "specie_label", "individual_label", "new"]:
+        for key in ["klass_label", "specie_label", "individual_label", "new", "fold"]:
             sample[key] = item[key]
 
         if self.load_all_fields:

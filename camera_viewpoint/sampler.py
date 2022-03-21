@@ -5,8 +5,9 @@ from torch.utils.data.sampler import BatchSampler
 
 
 class BalancedSpeciesSampler(BatchSampler):
-    def __init__(self, items, batch_size):
+    def __init__(self, items, batch_size, min_count=100):
         self.batch_size = batch_size
+        self.min_count = min_count
         self.weights = self._calculate_weights(items)
         self.indices = np.arange(len(items))
 
@@ -19,7 +20,7 @@ class BalancedSpeciesSampler(BatchSampler):
 
     def _calculate_weights(self, items):
         counts = Counter([item["specie_label"] for item in items])
-        weights = [1. / np.sqrt(counts[item["specie_label"]]) for item in items]
+        weights = [1. / np.sqrt(max(self.min_count, counts[item["specie_label"]])) for item in items]
         return np.asarray(weights)
 
 

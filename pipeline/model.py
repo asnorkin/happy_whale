@@ -71,6 +71,7 @@ class HappyModel(nn.Module):
             nn.Linear(specie_hidden, num_species),
         )
         self.crop_head = nn.Sequential(
+            nn.Dropout(in_features),
             nn.Linear(in_features, 1),
         )
 

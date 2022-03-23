@@ -12,6 +12,7 @@ from torch.nn import functional as F
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import OneCycleLR
 
+from pipeline.loss import FocalLoss
 from pipeline.metric import map_per_set
 from pipeline.model import HappyModel
 
@@ -70,7 +71,7 @@ class HappyLightningModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.arcface_criterion = nn.CrossEntropyLoss()
+        self.arcface_criterion = FocalLoss(gamma=self.hparams.focal_gamma)
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
         self.crop_criterion = nn.BCEWithLogitsLoss()
@@ -146,6 +147,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--m", type=float, default=0.5)
         parser.add_argument("--easy_margin", type=int, default=0)
         parser.add_argument("--ls_eps", type=float, default=0.0)
+        parser.add_argument("--focal_gamma", type=float, default=2.0)
 
         # Learning rate
         parser.add_argument("--num_epochs", type=int, default=20)

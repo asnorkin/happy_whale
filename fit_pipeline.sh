@@ -34,7 +34,6 @@ nohup python ${WORK_DIR}/train.py \
     --labels_csv=${LABELS_CSV} \
     --images_dir=${IMAGES_DIR} \
     --gpus=${GPUS} \
-    --strategy=ddp \
     --batch_size=${BATCH} \
     --accumulate_grad_batches=${ACC} \
     --num_epochs=${EPOCHS} \
@@ -43,5 +42,6 @@ nohup python ${WORK_DIR}/train.py \
     --input_width=${INPUT_WIDTH} \
     --dropout=${DROPOUT} \
     --lr=${LR} \
+    --fold=${FOLD} \
     --experiment=${EXPERIMENT} > ${WORK_DIR}/logs/${EXPERIMENT}_train.log 2>&1 &
 

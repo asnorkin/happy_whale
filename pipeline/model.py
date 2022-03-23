@@ -61,7 +61,6 @@ class HappyModel(nn.Module):
         )
         self.fc = ArcMarginProduct(embedding_size, num_classes, s=s, m=m, easy_margin=easy_margin, ls_eps=ls_eps)
         self.klass_head = nn.Sequential(
-            nn.Dropout(in_features),
             nn.Linear(in_features, 1),
         )
         self.specie_head = nn.Sequential(
@@ -72,7 +71,6 @@ class HappyModel(nn.Module):
             nn.Linear(specie_hidden, num_species),
         )
         self.crop_head = nn.Sequential(
-            nn.Dropout(in_features),
             nn.Linear(in_features, 1),
         )
 

@@ -8,9 +8,9 @@ WORK_DIR=pipeline
 LABELS_CSV=../data/train.csv
 IMAGES_DIR=../data/train_images_yolov5_9c_v3_512
 
-B=0
-BATCH=60
-ACC=1
+B=7
+BATCH=20
+ACC=3
 GPUS=4
 EPOCHS=60
 WORKERS=16
@@ -44,4 +44,3 @@ nohup python ${WORK_DIR}/train.py \
     --lr=${LR} \
     --fold=${FOLD} \
     --experiment=${EXPERIMENT} > ${WORK_DIR}/logs/${EXPERIMENT}_train.log 2>&1 &
-

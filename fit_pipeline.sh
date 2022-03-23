@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=2,3,
+export CUDA_VISIBLE_DEVICES=0,1,2,3,
 export OPENBLAS_NUM_THREADS=1
 
 source ../.whale_venv/bin/activate
@@ -6,26 +6,30 @@ which python
 
 WORK_DIR=pipeline
 LABELS_CSV=../data/train.csv
-IMAGES_DIR=../data/train_images_detic_768x384
+IMAGES_DIR=../data/train_images_yolov5_9c_v3_512
 
 B=0
-BATCH=57
+BATCH=60
 ACC=1
-GPUS=2
-EPOCHS=20
+GPUS=4
+EPOCHS=60
 WORKERS=16
-INPUT_WIDTH=768
-INPUT_HEIGHT=384
-DROPOUT=0.2
+INPUT_WIDTH=512
+INPUT_HEIGHT=512
+FOLD=0
+DROPOUT=0.4
 LR=0.001
+M=0.4
 
-EXPERIMENT=tf_effb${B}_ns_detic_2ldp0.2_${INPUT_WIDTH}x${INPUT_HEIGHT}_${GPUS}g${BATCH}x${ACC}b${EPOCHS}e${LR}lr
+EXPERIMENT=tf_effb${B}_ns_m${M}_yolov5_9c_v3_augv3_2ldp${DROPOUT}_${INPUT_WIDTH}x${INPUT_HEIGHT}_${GPUS}g${BATCH}x${ACC}b${EPOCHS}e${LR}lr${FOLD}f
 MODEL=tf_efficientnet_b${B}_ns
 
 export PYTHONPATH=.:${PYTHONPATH}
 
 nohup python ${WORK_DIR}/train.py \
-    --m=0.3 \
+    --random_image=1 \
+    --precision=16 \
+    --m=${M} \
     --model_name=${MODEL} \
     --labels_csv=${LABELS_CSV} \
     --images_dir=${IMAGES_DIR} \

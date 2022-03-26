@@ -97,6 +97,7 @@ class CameraLightningDataModule(pl.LightningDataModule):
         params = {
             "pin_memory": True,
             "num_workers": self.hparams.num_workers,
+            "persistent_workers": self.hparams.num_workers > 0,
         }
 
         if batch_sampler is not None:

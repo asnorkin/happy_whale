@@ -111,7 +111,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         params = {
             "pin_memory": True,
-            "persistent_workers": True,
+            "persistent_workers": self.hparams.num_workers > 0,
             "num_workers": self.hparams.num_workers,
         }
 

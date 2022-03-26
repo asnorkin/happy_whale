@@ -6,8 +6,9 @@ from tqdm import tqdm
 
 
 class FuseDataset(Dataset):
-    def __init__(self, items):
+    def __init__(self, items, drop_fin_prob=0.5):
         self.items = items
+        self.drop_fin_prob = drop_fin_prob
 
     def __len__(self):
         return len(self.items)
@@ -26,6 +27,10 @@ class FuseDataset(Dataset):
             "has_fin"
         ]
         sample = {key: item[key] for key in sample_keys}
+
+        if np.random.random() < self.drop_fin_prob:
+            sample["embedding_fin"] = torch.zeros_like(sample["embedding_fin"])
+
         return sample
 
     @classmethod

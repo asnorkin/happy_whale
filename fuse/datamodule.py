@@ -26,8 +26,8 @@ class FuseLightningDataModule(pl.LightningDataModule):
         train_items = [item for item in items if item["fold"] != self.hparams.fold]
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
-        self.train_dataset = FuseDataset(train_items)
-        self.val_dataset = FuseDataset(val_items)
+        self.train_dataset = FuseDataset(train_items, drop_fin_prob=self.hparams.drop_fin_prob)
+        self.val_dataset = FuseDataset(val_items, drop_fin_prob=0.0)
 
     @staticmethod
     def add_data_specific_args(parent_parser):
@@ -42,6 +42,9 @@ class FuseLightningDataModule(pl.LightningDataModule):
         parser.add_argument("--num_workers", type=int, default=8)
         parser.add_argument("--batch_size", type=int, default=128)
         parser.add_argument("--fold", type=int, default=0)
+
+        # Augmentations
+        parser.add_argument("--drop_fin_prob", type=float, default=0.5)
 
         return parser
 

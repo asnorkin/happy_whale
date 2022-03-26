@@ -37,4 +37,5 @@ nohup python ${WORK_DIR}/train.py \
     --num_workers=${WORKERS} \
     --lr=${LR} \
     --fold=${FOLD} \
+    --project=happy_fuse \
     --experiment=${EXPERIMENT} > ${WORK_DIR}/logs/${EXPERIMENT}_train.log 2>&1 &

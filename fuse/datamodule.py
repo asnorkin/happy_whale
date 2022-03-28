@@ -27,7 +27,7 @@ class FuseLightningDataModule(pl.LightningDataModule):
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
         self.train_dataset = FuseDataset(train_items, drop_fin_prob=self.hparams.drop_fin_prob)
-        self.val_dataset = FuseDataset(val_items, drop_fin_prob=0.0)
+        self.val_dataset = FuseDataset(val_items, drop_fin_prob=0.0, hflip_prob=0.0)
 
     @staticmethod
     def add_data_specific_args(parent_parser):

@@ -21,6 +21,7 @@ class HappyModel(nn.Module):
         easy_margin=False,
         ls_eps=0.0,
         all_images=False,
+        num_viewpoints=3,
         **timm_kwargs
     ):
         super().__init__()
@@ -73,6 +74,9 @@ class HappyModel(nn.Module):
         self.crop_head = nn.Sequential(
             nn.Linear(in_features, 1),
         )
+        self.viewpoint_head = nn.Sequential(
+            nn.Linear(in_features, num_viewpoints),
+        )
 
     def forward(self, images, labels):
         features = self.model(images)
@@ -91,7 +95,10 @@ class HappyModel(nn.Module):
         # Crop
         crop_logits = self.crop_head(pooled_features)[:, 0] # (B, 1) -> (B,)
 
-        return arcface_logits, klass_logits, specie_logits, crop_logits, embeddings
+        # Viewpoint
+        viewpoint_logits = self.viewpoint_head(pooled_features)
+
+        return arcface_logits, klass_logits, specie_logits, crop_logits, viewpoint_logits, embeddings
 
     def predict(self, images):
         features = self.model(images)
@@ -112,7 +119,11 @@ class HappyModel(nn.Module):
         crop_logits = self.crop_head(pooled_features)[:, 0]  # (B, 1) -> (B,)
         crop_probabilities = crop_logits.sigmoid()
 
-        return klass_probabilities, specie_probabilities, crop_probabilities, embeddings
+        # Viewpoint
+        viewpoint_logits = self.viewpoint_head(pooled_features)
+        viewpoint_probabilities = viewpoint_logits.softmax(dim=1)
+
+        return klass_probabilities, specie_probabilities, crop_probabilities, viewpoint_probabilities, embeddings
 
     @classmethod
     def from_checkpoint(cls, checkpoint_file):

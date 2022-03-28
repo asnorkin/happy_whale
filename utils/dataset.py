@@ -19,6 +19,7 @@ class ImageItemsDataset(Dataset):
             "klass_label": item["klass_label"],
             "specie_label": item["specie_label"],
             "individual_label": item["individual_label"],
+            "viewpoint_label": item["viewpoint_label"],
             "new": item["new"],
             "fold": item["fold"],
             "crop_label": crop_label,

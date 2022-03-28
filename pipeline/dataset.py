@@ -43,7 +43,7 @@ class HappyDataset(ImageItemsDataset):
         else:
             return super().__getitem__(index)
 
-        for key in ["klass_label", "specie_label", "individual_label", "new", "fold"]:
+        for key in ["klass_label", "specie_label", "individual_label", "viewpoint_label", "new", "fold"]:
             sample[key] = item[key]
 
         if self.load_all_fields:
@@ -75,9 +75,11 @@ class HappyDataset(ImageItemsDataset):
                 "klass": -1,
                 "species": -1,
                 "individual_id": -1,
+                "viewpoint": -1,
                 "klass_label": -1,
                 "species_label": -1,
                 "individual_label": -1,
+                "viewpoint_label": -1,
                 "fold": -1,
                 "new": -1,
                 "iou_v3": -1,
@@ -104,9 +106,11 @@ class HappyDataset(ImageItemsDataset):
                 "klass": row.klass,
                 "species": row.species,
                 "individual_id": row.individual_id,
+                "viewpoint": row.viewpoint,
                 "klass_label": row.klass_label,
                 "specie_label": row.species_label,
                 "individual_label": row.individual_label,
+                "viewpoint_label": row.viewpoint_label,
                 "fold": row.fold,
                 "new": row.new,
                 "iou": row.iou_v3,

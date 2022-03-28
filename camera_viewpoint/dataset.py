@@ -55,7 +55,7 @@ class CameraDataset(ImageItemsDataset):
                 "species": -1,
                 "viewpoint_label": -1,
                 "klass_label": -1,
-                "specie_label": -1,
+                "species_label": -1,
                 "fold": -1,
             } for image_file in image_files])
 

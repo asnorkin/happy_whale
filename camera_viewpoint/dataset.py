@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 
 import pandas as pd
@@ -35,10 +36,29 @@ class CameraDataset(ImageItemsDataset):
 
     @classmethod
     def load_items(cls, images_dir, labels_csv=None, debug=False):
-        if labels_csv is None:
-            raise ValueError("labels_csv should not be None")
+        if labels_csv is not None:
+            labels_df = pd.read_csv(labels_csv)
 
-        labels_df = pd.read_csv(labels_csv)
+        else:
+            # Only images case
+            # Create dummy labels dataframe
+            image_files = []
+            for image_file in os.listdir(images_dir):
+                name, ext = osp.splitext(image_file)
+                if not name.endswith(("_fish", "_fin")):
+                    image_files.append(image_file)
+
+            labels_df = pd.DataFrame([{
+                "image": image_file,
+                "viewpoint": -1,
+                "klass": -1,
+                "species": -1,
+                "viewpoint_label": -1,
+                "klass_label": -1,
+                "specie_label": -1,
+                "fold": -1,
+            } for image_file in image_files])
+
         labels_df = labels_df[~labels_df.viewpoint.isna()]
         labels_df.viewpoint_label = labels_df.viewpoint_label.astype(int)
 

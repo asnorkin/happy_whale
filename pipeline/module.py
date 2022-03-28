@@ -71,7 +71,8 @@ class HappyLightningModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.arcface_criterion = nn.CrossEntropyLoss()
+        # self.arcface_criterion = nn.CrossEntropyLoss()
+        self.arcface_criterion = FocalLoss(gamma=self.hparams.focal_gamma)
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
         self.viewpoint_criterion = nn.CrossEntropyLoss(label_smoothing=self.hparams.viewpoint_smoothing)

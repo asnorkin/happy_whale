@@ -6,9 +6,10 @@ from tqdm import tqdm
 
 
 class FuseDataset(Dataset):
-    def __init__(self, items, drop_fin_prob=0.5):
+    def __init__(self, items, drop_fin_prob=0.5, hflip_prob=0.5):
         self.items = items
         self.drop_fin_prob = drop_fin_prob
+        self.hflip_prob = hflip_prob
 
     def __len__(self):
         return len(self.items)
@@ -27,6 +28,10 @@ class FuseDataset(Dataset):
             "has_fin"
         ]
         sample = {key: item[key] for key in sample_keys}
+
+        if np.random.random() < self.hflip_prob:
+            sample["embedding_fin"] = item["embedding_fin_hflip"]
+            sample["embedding_fish"] = item["embedding_fish_hflip"]
 
         if np.random.random() < self.drop_fin_prob:
             sample["embedding_fin"] = torch.zeros_like(sample["embedding_fin"])
@@ -50,6 +55,8 @@ class FuseDataset(Dataset):
 
             embedding_fin = embeddings[image2ind[row.image], 0]
             embedding_fish = embeddings[image2ind[row.image], 1]
+            embedding_fin_hflip = embeddings[image2ind[row.image], 2]
+            embedding_fish_hflip = embeddings[image2ind[row.image], 3]
             has_fin = True
             if torch.isclose(embedding_fin, embedding_fish).all():
                 embedding_fin = torch.zeros_like(embedding_fin)
@@ -58,6 +65,8 @@ class FuseDataset(Dataset):
             item = {
                 "embedding_fin": embedding_fin,
                 "embedding_fish": embedding_fish,
+                "embedding_fin_hflip": embedding_fin_hflip,
+                "embedding_fish_hflip": embedding_fish_hflip,
                 "has_fin": has_fin,
                 "klass": row.klass,
                 "species": row.species,

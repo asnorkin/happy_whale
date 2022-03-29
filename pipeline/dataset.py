@@ -44,6 +44,8 @@ class HappyDataset(ImageItemsDataset):
             image_files.append(image_file)
             probs.append(prob)
 
+        probs = np.asarray(probs)
+        probs /= probs.sum()
         image_file = np.random.choice(image_files, p=probs)
         return image_file, crop_label
 

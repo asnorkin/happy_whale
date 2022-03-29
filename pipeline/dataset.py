@@ -9,54 +9,54 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.55, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.6, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image
         self.p_fin = p_fin if load_random_image else 1.0
-        self.p_fish = 0.35
-        self.p_full = 0.1
-
-    # def get_image_file(self, item):
-    #     crop_label = int(item["iou"] > 0.8)
-    #     if item["image_file_fin"] and np.random.random() < self.p_fin:
-    #         image_file = item["image_file_fin"]
-    #         crop_label = 1
-    #     elif item["image_file_fish"]:
-    #         image_file = item["image_file_fish"]
-    #     else:
-    #         image_file = item["image_file"]
-    #
-    #     return image_file, crop_label
+        # self.p_fish = 0.35
+        # self.p_full = 0.1
 
     def get_image_file(self, item):
         crop_label = int(item["iou"] > 0.8)
+        if item["image_file_fin"] and np.random.random() < self.p_fin:
+            image_file = item["image_file_fin"]
+            crop_label = 1
+        elif item["image_file_fish"]:
+            image_file = item["image_file_fish"]
+        else:
+            image_file = item["image_file"]
 
-        if not self.load_random_image:
-            if item["image_file_fin"]:
-                image_file = item["image_file_fin"]
-            elif item["image_file_fish"]:
-                image_file = item["image_file_fish"]
-            else:
-                image_file = item["image_file"]
-            return image_file, crop_label
-
-        image_files, probs = [], []
-        for key, prob in zip(
-            ["image_file", "image_file_fish", "image_file_fin"],
-            [self.p_full, self.p_fish, self.p_fin]
-        ):
-            image_file = item[key]
-            if not image_file:
-                continue
-
-            image_files.append(image_file)
-            probs.append(prob)
-
-        probs = np.asarray(probs)
-        probs /= probs.sum()
-        image_file = np.random.choice(image_files, p=probs)
         return image_file, crop_label
+
+    # def get_image_file(self, item):
+    #     crop_label = int(item["iou"] > 0.8)
+    #
+    #     if not self.load_random_image:
+    #         if item["image_file_fin"]:
+    #             image_file = item["image_file_fin"]
+    #         elif item["image_file_fish"]:
+    #             image_file = item["image_file_fish"]
+    #         else:
+    #             image_file = item["image_file"]
+    #         return image_file, crop_label
+    #
+    #     image_files, probs = [], []
+    #     for key, prob in zip(
+    #         ["image_file", "image_file_fish", "image_file_fin"],
+    #         [self.p_full, self.p_fish, self.p_fin]
+    #     ):
+    #         image_file = item[key]
+    #         if not image_file:
+    #             continue
+    #
+    #         image_files.append(image_file)
+    #         probs.append(prob)
+    #
+    #     probs = np.asarray(probs)
+    #     probs /= probs.sum()
+    #     image_file = np.random.choice(image_files, p=probs)
+    #     return image_file, crop_label
 
     def __getitem__(self, index):
         item = self.items[index]

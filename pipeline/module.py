@@ -77,8 +77,8 @@ class HappyLightningModule(pl.LightningModule):
         self.specie_criterion = nn.CrossEntropyLoss()
         self.viewpoint_criterion = nn.CrossEntropyLoss(label_smoothing=self.hparams.viewpoint_smoothing)
         self.crop_criterion = nn.BCEWithLogitsLoss()
-        self.crop_weight = 0.0  # 1.0 - int(self.hparams.all_images)  # Do not use crop loss for --all_images=1 case
-        self.viewpoint_weight = 0.0
+        self.crop_weight = 1.0 - int(self.hparams.all_images)  # Do not use crop loss for --all_images=1 case
+        self.viewpoint_weight = 1.0
 
         num_classes = self.hparams.num_classes
         if self.hparams.flip_id:

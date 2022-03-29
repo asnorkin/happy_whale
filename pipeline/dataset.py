@@ -39,7 +39,7 @@ class HappyDataset(ImageItemsDataset):
         ):
             image_file = item[key]
             if image_file is None:
-                prob = 0
+                continue
 
             image_files.append(image_file)
             probs.append(prob)

@@ -9,12 +9,12 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.5, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.55, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image
         self.p_fin = p_fin if load_random_image else 1.0
-        self.p_fish = 0.4
+        self.p_fish = 0.35
         self.p_full = 0.1
 
     # def get_image_file(self, item):

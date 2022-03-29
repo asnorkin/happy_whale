@@ -38,7 +38,7 @@ class HappyDataset(ImageItemsDataset):
             [self.p_full, self.p_fish, self.p_fin]
         ):
             image_file = item[key]
-            if image_file is None:
+            if not image_file:
                 continue
 
             image_files.append(image_file)

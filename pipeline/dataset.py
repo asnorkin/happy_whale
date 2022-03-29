@@ -61,6 +61,7 @@ class HappyDataset(ImageItemsDataset):
     def __getitem__(self, index):
         item = self.items[index]
         if self.load_all_images:
+            image_full = self.load_image(item["image_file"])
             image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] else item["image_file"])
             image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else image_fish
 
@@ -68,7 +69,7 @@ class HappyDataset(ImageItemsDataset):
             sample = {
                 "image": image_fin,  # For albumentations compatibility
                 "image_fish": image_fish,
-                # "image_fin": image_fin,
+                "image_full": image_full,
             }
 
         else:

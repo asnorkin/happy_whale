@@ -71,13 +71,14 @@ class HappyLightningModule(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        # self.arcface_criterion = nn.CrossEntropyLoss()
-        self.arcface_criterion = FocalLoss(gamma=self.hparams.focal_gamma)
+        self.arcface_criterion = nn.CrossEntropyLoss()
+        # self.arcface_criterion = FocalLoss(gamma=self.hparams.focal_gamma)
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
         self.viewpoint_criterion = nn.CrossEntropyLoss(label_smoothing=self.hparams.viewpoint_smoothing)
         self.crop_criterion = nn.BCEWithLogitsLoss()
-        self.crop_weight = 1.0 - int(self.hparams.all_images)  # Do not use crop loss for --all_images=1 case
+        self.crop_weight = 0.0  # 1.0 - int(self.hparams.all_images)  # Do not use crop loss for --all_images=1 case
+        self.viewpoint_weight = 0.0
 
         num_classes = self.hparams.num_classes
         if self.hparams.flip_id:
@@ -305,7 +306,7 @@ class HappyLightningModule(pl.LightningModule):
         viewpoint_loss = self.viewpoint_criterion(viewpoint_logits, batch["viewpoint_label"])
 
         losses = {
-            "total": arcface_loss + klass_loss + specie_loss + self.crop_weight * crop_loss + viewpoint_loss,
+            "total": arcface_loss + klass_loss + specie_loss + self.crop_weight * crop_loss + self.viewpoint_weight * viewpoint_loss,
             "arcface": arcface_loss,
             "klass": klass_loss,
             "specie": specie_loss,

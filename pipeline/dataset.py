@@ -32,6 +32,15 @@ class HappyDataset(ImageItemsDataset):
     def get_image_file(self, item):
         crop_label = int(item["iou"] > 0.8)
 
+        if not self.load_random_image:
+            if item["image_file_fin"]:
+                image_file = item["image_file_fin"]
+            elif item["image_file_fish"]:
+                image_file = item["image_file_fish"]
+            else:
+                image_file = item["image_file"]
+            return image_file, crop_label
+
         image_files, probs = [], []
         for key, prob in zip(
             ["image_file", "image_file_fish", "image_file_fin"],

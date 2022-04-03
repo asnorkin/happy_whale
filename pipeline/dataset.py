@@ -169,6 +169,11 @@ class HappyDataset(ImageItemsDataset):
 
         return items
 
+    @classmethod
+    def create(cls, images_dir, labels_csv=None, debug=False, second=False, **init_kwargs):
+        items = cls.load_items(images_dir, labels_csv, debug, second=second)
+        return cls(items, second=second, **init_kwargs)
+
 
 if __name__ == "__main__":
     items = HappyDataset.load_items("../data/train_images", "../data/train.csv", debug=True)

@@ -9,11 +9,12 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.5, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.5, second=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image
         self.p_fin = p_fin if load_random_image else 1.0
+        self.second = second
         # self.p_fish = 0.35
         # self.p_full = 0.1
 
@@ -62,8 +63,12 @@ class HappyDataset(ImageItemsDataset):
         item = self.items[index]
         if self.load_all_images:
             # image_full = self.load_image(item["image_file"])
-            image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] else item["image_file"])
-            image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else image_fish
+            if self.second:
+                image_fish = self.load_image(item["image_file_fish"]) if item["image_file_fish"] else np.zeros((5, 5, 3), dtype=np.uint8)
+                image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else np.zeros((5, 5, 3), dtype=np.uint8)
+            else:
+                image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] else item["image_file"])
+                image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else image_fish
 
             item = self.items[index]
             sample = {

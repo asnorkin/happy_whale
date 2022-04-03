@@ -132,9 +132,9 @@ class HappyDataset(ImageItemsDataset):
             image_file_fish = osp.join(images_dir, name + "_fish" + ext)
             image_file_fin = osp.join(images_dir, name + "_fin" + ext)
             if second:
-                image_file_fish2 = osp.join(images_dir, name + "_fish2" + ext)
-                image_file_fin2 = osp.join(images_dir, name + "_fin2" + ext)
-                if not osp.exists(image_file_fish2) and not osp.exists(image_file_fin2):
+                image_file_fish = osp.join(images_dir, name + "_fish2" + ext)
+                image_file_fin = osp.join(images_dir, name + "_fin2" + ext)
+                if not osp.exists(image_file_fish) and not osp.exists(image_file_fin):
                     not_found += 1
                     continue
 

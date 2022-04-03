@@ -9,7 +9,7 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.6, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.5, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image

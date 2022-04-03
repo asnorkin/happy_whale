@@ -39,12 +39,12 @@ class ImageItemsDataset(Dataset):
         return item["image_file"], 0
 
     @classmethod
-    def create(cls, images_dir, labels_csv=None, debug=False, **init_kwargs):
-        items = cls.load_items(images_dir, labels_csv, debug)
+    def create(cls, images_dir, labels_csv=None, debug=False, second=False, **init_kwargs):
+        items = cls.load_items(images_dir, labels_csv, debug, second=second)
         return cls(items, **init_kwargs)
 
     @classmethod
-    def load_items(cls, images_dir, labels_csv=None, debug=False):
+    def load_items(cls, images_dir, labels_csv=None, debug=False, second=False):
         raise NotImplementedError("Method load_items should be implemented in ancestors")
 
     @classmethod

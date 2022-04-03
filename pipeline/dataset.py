@@ -61,7 +61,7 @@ class HappyDataset(ImageItemsDataset):
     def __getitem__(self, index):
         item = self.items[index]
         if self.load_all_images:
-            image_full = self.load_image(item["image_file"])
+            # image_full = self.load_image(item["image_file"])
             image_fish = self.load_image(item["image_file_fish"] if item["image_file_fish"] else item["image_file"])
             image_fin = self.load_image(item["image_file_fin"]) if item["image_file_fin"] else image_fish
 
@@ -89,7 +89,7 @@ class HappyDataset(ImageItemsDataset):
         return sample
 
     @classmethod
-    def load_items(cls, images_dir, labels_csv=None, debug=False):
+    def load_items(cls, images_dir, labels_csv=None, debug=False, second=False):
         if labels_csv is not None:
             labels_df = pd.read_csv(labels_csv)
 
@@ -114,7 +114,7 @@ class HappyDataset(ImageItemsDataset):
                 "viewpoint_label": -1,
                 "fold": -1,
                 "new": -1,
-                "iou_v3": -1,
+                "iou_v5": -1,
             } for image_file in image_files])
 
         items, not_found = [], 0
@@ -128,8 +128,15 @@ class HappyDataset(ImageItemsDataset):
                 break
 
             name, ext = osp.splitext(row.image)
+
             image_file_fish = osp.join(images_dir, name + "_fish" + ext)
             image_file_fin = osp.join(images_dir, name + "_fin" + ext)
+            if second:
+                image_file_fish2 = osp.join(images_dir, name + "_fish2" + ext)
+                image_file_fin2 = osp.join(images_dir, name + "_fin2" + ext)
+                if not osp.exists(image_file_fish2) and not osp.exists(image_file_fin2):
+                    not_found += 1
+                    continue
 
             item = {
                 "image_file": image_file,
@@ -145,7 +152,7 @@ class HappyDataset(ImageItemsDataset):
                 "viewpoint_label": row.viewpoint_label,
                 "fold": row.fold,
                 "new": row.new,
-                "iou": row.iou_v3,
+                "iou": row.iou_v5,
             }
             items.append(item)
 

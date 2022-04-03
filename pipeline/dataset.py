@@ -120,7 +120,7 @@ class HappyDataset(ImageItemsDataset):
         items, not_found = [], 0
         for i, row in enumerate(tqdm(labels_df.itertuples(), desc="Loading items", unit="item", total=len(labels_df))):
             image_file = osp.join(images_dir, row.image)
-            if not osp.exists(image_file):
+            if not osp.exists(image_file) and not second:
                 not_found += 1
                 continue
 

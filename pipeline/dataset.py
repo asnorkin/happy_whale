@@ -101,14 +101,11 @@ class HappyDataset(ImageItemsDataset):
         else:
             # Only images case
             # Create dummy labels dataframe
-            image_files = set()
+            image_files = []
             for image_file in os.listdir(images_dir):
                 name, ext = osp.splitext(image_file)
-                for suffix in ["_fish", "_fin", "_fish2", "_fin2"]:
-                    if name.endswith(suffix):
-                        name = name[:-len(suffix)]
-                image_files.add(name + ext)
-            image_files = list(sorted(image_files))
+                if not name.endswith(("_fish", "_fin")):
+                    image_files.append(image_file)
 
             labels_df = pd.DataFrame([{
                 "image": image_file,

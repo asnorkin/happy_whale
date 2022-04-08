@@ -165,10 +165,6 @@ class HappyDataset(ImageItemsDataset):
         if not_found > 0:
             print(f"Not found: {not_found}")
 
-        min_count = 2
-        counts = Counter([item["individual_id"] for item in items])
-        items = [item for item in items if counts[item["individual_id"]] >= min_count]
-
         return items
 
     @classmethod

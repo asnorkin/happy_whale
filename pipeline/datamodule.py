@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from collections import Counter
 
 import albumentations as A
 import pytorch_lightning as pl
@@ -65,6 +66,12 @@ class HappyLightningDataModule(pl.LightningDataModule):
         train_items = [item for item in items if item["fold"] != self.hparams.fold]
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
+        train_counts = Counter([item["individual_id"] for item in train_items])
+        train_items = [item for item in train_items if train_counts[item["individual_id"]] >= self.hparams.min_count]
+        for i, item in enumerate(val_items):
+            if train_counts[item["individual_id"]] < self.hparams.min_count:
+                val_items[i]["new"] = 1
+
         additional_targets = dict()
         if self.hparams.all_images:
             additional_targets["image_fish"] = "image"
@@ -96,6 +103,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         parser.add_argument("--input_width", type=int, default=768)
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
+        parser.add_argument("--min_count", type=int, default=2)
 
         return parser
 

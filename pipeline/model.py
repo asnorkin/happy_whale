@@ -4,6 +4,8 @@ from timm.models.layers.conv2d_same import Conv2dSame
 from torch import nn
 
 from pipeline.arcface import ArcMarginProduct, GeM
+from pipeline.swin import create_model_swin
+from pipeline.swin.swin_transformer import SwinTransformer
 
 
 class HappyModel(nn.Module):
@@ -26,7 +28,11 @@ class HappyModel(nn.Module):
     ):
         super().__init__()
 
-        self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
+        if model_name == "swin_base_patch4_window12_384_in22k":
+            self.model = create_model_swin()
+        else:
+            self.model = timm.create_model(model_name, pretrained=pretrained, **timm_kwargs)
+
         for head_name in ["fc", "head", "classifier"]:
             if hasattr(self.model, head_name):
                 in_features = getattr(self.model, head_name).in_features
@@ -79,8 +85,11 @@ class HappyModel(nn.Module):
         )
 
     def forward(self, images, labels):
-        features = self.model(images)
-        pooled_features = self.pooling(features).flatten(1)
+        if isinstance(self.model, SwinTransformer):
+            pooled_features = self.model(images)
+        else:
+            features = self.model(images)
+            pooled_features = self.pooling(features).flatten(1)
 
         # ArcFace
         embeddings = self.embedding(pooled_features)
@@ -101,8 +110,11 @@ class HappyModel(nn.Module):
         return arcface_logits, klass_logits, specie_logits, crop_logits, viewpoint_logits, embeddings
 
     def predict(self, images):
-        features = self.model(images)
-        pooled_features = self.pooling(features).flatten(1)
+        if isinstance(self.model, SwinTransformer):
+            pooled_features = self.model(images)
+        else:
+            features = self.model(images)
+            pooled_features = self.pooling(features).flatten(1)
 
         # Embeddings
         embeddings = self.embedding(pooled_features)

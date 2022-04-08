@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+from collections import Counter
 
 import numpy as np
 import pandas as pd
@@ -119,7 +120,7 @@ class HappyDataset(ImageItemsDataset):
                 "viewpoint_label": -1,
                 "fold": -1,
                 "new": -1,
-                "iou_v5": -1,
+                "iou_v3": -1,
             } for image_file in image_files])
 
         items, not_found = [], 0
@@ -157,12 +158,16 @@ class HappyDataset(ImageItemsDataset):
                 "viewpoint_label": row.viewpoint_label,
                 "fold": row.fold,
                 "new": row.new,
-                "iou": row.iou_v5,
+                "iou": row.iou_v3,
             }
             items.append(item)
 
         if not_found > 0:
             print(f"Not found: {not_found}")
+
+        min_count = 2
+        counts = Counter([item["individual_id"] for item in items])
+        items = [item for item in items if counts[item["individual_id"]] >= min_count]
 
         return items
 

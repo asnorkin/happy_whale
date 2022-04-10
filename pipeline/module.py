@@ -172,6 +172,7 @@ class HappyLightningModule(pl.LightningModule):
         return self._step(batch, batch_idx, stage="train")
 
     def validation_step(self, batch, batch_idx):
+        return
         return self._step(batch, batch_idx, stage="val")
 
     def test_step(self, batch, batch_idx):
@@ -235,6 +236,7 @@ class HappyLightningModule(pl.LightningModule):
         self.train_outputs = []
 
     def validation_epoch_end(self, outputs):
+        return
         stage = "val"
 
         if not self.train_outputs:

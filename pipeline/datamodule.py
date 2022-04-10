@@ -72,6 +72,8 @@ class HappyLightningDataModule(pl.LightningDataModule):
             if train_counts[item["individual_id"]] < self.hparams.min_count:
                 val_items[i]["new"] = 1
 
+        train_items, val_items = items, []
+
         additional_targets = dict()
         if self.hparams.all_images:
             additional_targets["image_fish"] = "image"
@@ -103,15 +105,15 @@ class HappyLightningDataModule(pl.LightningDataModule):
         parser.add_argument("--input_width", type=int, default=768)
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
-        parser.add_argument("--min_count", type=int, default=2)
+        parser.add_argument("--min_count", type=int, default=1)
 
         return parser
 
     def train_dataloader(self):
         return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True, drop_last=True)
 
-    def val_dataloader(self):
-        return self._dataloader(self.val_dataset, self.val_sampler)
+#    def val_dataloader(self):
+#        return self._dataloader(self.val_dataset, self.val_sampler)
 
     def test_dataloader(self):
         return self._dataloader(self.test_dataset)

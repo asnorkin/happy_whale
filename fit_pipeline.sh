@@ -17,16 +17,18 @@ WORKERS=16
 INPUT_WIDTH=512
 INPUT_HEIGHT=512
 FOLD=0
-DROPOUT=0.4
+DROPOUT=0.5
 LR=0.001
 M=0.4
 
-EXPERIMENT=tf_effb${B}_ns_m${M}_yolov5_9c_v3_augv3_2ldp${DROPOUT}_${INPUT_WIDTH}x${INPUT_HEIGHT}_${GPUS}g${BATCH}x${ACC}b${EPOCHS}e${LR}lr${FOLD}f
+EXPERIMENT=tf_effb${B}_ns_m${M}_emb1024_viewpoint_yolov5_9c_v3_augv4_2ldp${DROPOUT}_${INPUT_WIDTH}x${INPUT_HEIGHT}_${GPUS}g${BATCH}x${ACC}b${EPOCHS}e${LR}lr_all
 MODEL=tf_efficientnet_b${B}_ns
+#MODEL=swin_base_patch4_window12_384_in22k
 
 export PYTHONPATH=.:${PYTHONPATH}
 
 nohup python ${WORK_DIR}/train.py \
+    --embedding_size=1024 \
     --random_image=1 \
     --precision=16 \
     --m=${M} \

@@ -7,7 +7,7 @@ from albumentations.pytorch.transforms import ToTensorV2
 from torch.utils.data import DataLoader
 
 from pipeline.augmentations import CameraHorizontalFlip, StackImages
-from pipeline.dataset import HappyDataset
+from pipeline.dataset import BalancedHappyDataset, HappyDataset
 
 
 class HappyLightningDataModule(pl.LightningDataModule):
@@ -79,7 +79,13 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         # Train dataset
         train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms, additional_targets=additional_targets)
-        self.train_dataset = HappyDataset(train_items, train_transform, load_all_images=self.hparams.all_images, load_random_image=self.hparams.random_image)
+        self.train_dataset = BalancedHappyDataset(
+            train_items,
+            train_transform,
+            load_all_images=self.hparams.all_images,
+            load_random_image=self.hparams.random_image,
+            max_count=self.hparams.max_count,
+        )
 
         # Val dataset
         val_transform = A.Compose(self.pre_transforms + self.post_transforms, additional_targets=additional_targets)
@@ -104,6 +110,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
         parser.add_argument("--min_count", type=int, default=2)
+        parser.add_argument("--max_count", type=int, default=5)
 
         return parser
 

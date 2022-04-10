@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-from collections import Counter
+from collections import Counter, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from utils.dataset import ImageItemsDataset
 
 
 class HappyDataset(ImageItemsDataset):
-    def __init__(self, *args, load_all_images=False, load_random_image=False, p_fin=0.5, second=False, **kwargs):
+    def __init__(self, *args, load_all_images=False, load_random_image=True, p_fin=0.5, second=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_all_images = load_all_images
         self.load_random_image = load_random_image
@@ -173,8 +173,37 @@ class HappyDataset(ImageItemsDataset):
         return cls(items, second=second, **init_kwargs)
 
 
+class BalancedHappyDataset(HappyDataset):
+    def __init__(self, *args, max_count=5, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.load_all_images:
+            raise ValueError(f"--load_all_images option is not supported by {__class__.__name__}")
+
+        self.individual_indices = defaultdict(list)
+        for index, item in enumerate(self.items):
+            self.individual_indices[item["individual_id"]].append(index)
+
+        self.index2individual = dict()
+        for individual, individual_indices in self.individual_indices.items():
+            for _ in range(min(len(individual_indices), max_count)):
+                self.index2individual[len(self.index2individual)] = individual
+
+    def __len__(self):
+        return len(self.index2individual)
+
+    def __getitem__(self, index):
+        individual = self.index2individual[index]
+        individual_index = np.random.choice(self.individual_indices[individual])
+        return super().__getitem__(individual_index)
+
+
 if __name__ == "__main__":
     items = HappyDataset.load_items("../data/train_images", "../data/train.csv", debug=True)
     dataset = HappyDataset(items)
+    sample = dataset[13]
+
+    items = BalancedHappyDataset.load_items("../data/train_images", "../data/train.csv")
+    dataset = BalancedHappyDataset(items)
     sample = dataset[13]
     print(1)

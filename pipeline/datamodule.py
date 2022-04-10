@@ -115,7 +115,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         return parser
 
     def train_dataloader(self):
-        return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True, drop_last=True)
+        return self._dataloader(self.train_dataset, self.train_sampler, shuffle=True)
 
     def val_dataloader(self):
         return self._dataloader(self.val_dataset, self.val_sampler)

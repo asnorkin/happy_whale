@@ -97,6 +97,17 @@ class HappyLightningModule(pl.LightningModule):
             all_images=self.hparams.all_images,
         )
 
+        ckpt_file = None 
+        if ckpt_file is not None:
+            ckpt = torch.load(ckpt_file, map_location="cpu")
+            state_dict = {k[6:] if k.startswith("model.") else k: v for k, v in ckpt["state_dict"].items()}
+            hparams = ckpt["hyper_parameters"]
+            result = self.model.load_state_dict(state_dict, strict=False)
+            if result.missing_keys:
+                print(f"[WARNING] Missing keys: {result.missing_keys}")
+            if result.unexpected_keys:
+                print(f"[WARNING] Unexpected keys: {result.unexpected_keys}")
+
         # Placeholders
         self.train_outputs = None
         self.best_model_score = None

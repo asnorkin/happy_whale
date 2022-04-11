@@ -109,7 +109,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
         parser.add_argument("--input_width", type=int, default=768)
         parser.add_argument("--batch_size", type=int, default=4)
         parser.add_argument("--fold", type=int, default=0)
-        parser.add_argument("--min_count", type=int, default=2)
+        parser.add_argument("--min_count", type=int, default=1)
         parser.add_argument("--max_count", type=int, default=5)
 
         return parser

@@ -72,6 +72,7 @@ class HappyLightningModule(pl.LightningModule):
         self.save_hyperparameters()
 
         self.arcface_criterion = nn.CrossEntropyLoss()
+        self.embeddings_norm_weight = self.hparams.embeddings_norm_weight
         # self.arcface_criterion = FocalLoss(gamma=self.hparams.focal_gamma)
         self.klass_criterion = nn.BCEWithLogitsLoss()
         self.specie_criterion = nn.CrossEntropyLoss()
@@ -163,6 +164,7 @@ class HappyLightningModule(pl.LightningModule):
         parser.add_argument("--ls_eps", type=float, default=0.0)
         parser.add_argument("--focal_gamma", type=float, default=2.0)
         parser.add_argument("--viewpoint_smoothing", type=float, default=0.05)
+        parser.add_argument("--embeddings_norm_weight", type=float, default=0.1)
 
         # Learning rate
         parser.add_argument("--num_epochs", type=int, default=20)
@@ -315,14 +317,17 @@ class HappyLightningModule(pl.LightningModule):
         specie_loss = self.specie_criterion(specie_logits, batch["specie_label"])
         crop_loss = self.crop_criterion(crop_logits, batch["crop_label"].float())
         viewpoint_loss = self.viewpoint_criterion(viewpoint_logits, batch["viewpoint_label"])
+        embeddings_norm_loss = embeddings.pow(2.0).sum(dim=1).pow(0.5).mean()
 
         losses = {
-            "total": arcface_loss + klass_loss + specie_loss + self.crop_weight * crop_loss + self.viewpoint_weight * viewpoint_loss,
+            "total": arcface_loss + klass_loss + specie_loss + self.crop_weight * crop_loss\
+                     + self.viewpoint_weight * viewpoint_loss + self.embeddings_norm_weight * embeddings_norm_loss,
             "arcface": arcface_loss,
             "klass": klass_loss,
             "specie": specie_loss,
             "crop": crop_loss,
             "viewpoint": viewpoint_loss,
+            "embeddings_norm": embeddings_norm_loss,
         }
 
         metrics = dict()

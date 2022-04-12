@@ -76,7 +76,7 @@ class HappyLightningDataModule(pl.LightningDataModule):
             pseudo_individuals = {item["individual_id"] for item in pseudo_items}
             for i, item in enumerate(val_items):
                 if item["individual_id"] in pseudo_individuals:
-                    val_items[i]["new"] = 1
+                    val_items[i]["new"] = 0
 
         train_counts = Counter([item["individual_id"] for item in train_items])
         train_items = [item for item in train_items if train_counts[item["individual_id"]] >= self.hparams.min_count]

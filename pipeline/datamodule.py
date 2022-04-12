@@ -66,6 +66,18 @@ class HappyLightningDataModule(pl.LightningDataModule):
         train_items = [item for item in items if item["fold"] != self.hparams.fold]
         val_items = [item for item in items if item["fold"] == self.hparams.fold]
 
+        if self.hparams.pseudo_csv is not None and self.hparams.pseudo_images_dir is not None:
+            pseudo_items = HappyDataset.load_items(
+                images_dir=self.hparams.pseudo_images_dir,
+                labels_csv=self.hparams.pseudo_csv,
+                debug=self.hparams.debug,
+            )
+            train_items.extend(pseudo_items)
+            pseudo_individuals = {item["individual_id"] for item in pseudo_items}
+            for i, item in enumerate(val_items):
+                if item["individual_id"] in pseudo_individuals:
+                    val_items[i]["new"] = 1
+
         train_counts = Counter([item["individual_id"] for item in train_items])
         train_items = [item for item in train_items if train_counts[item["individual_id"]] >= self.hparams.min_count]
         for i, item in enumerate(val_items):
@@ -102,6 +114,8 @@ class HappyLightningDataModule(pl.LightningDataModule):
         # Paths
         parser.add_argument("--images_dir", type=str, default="../data/train_images")
         parser.add_argument("--labels_csv", type=str, default="../data/train.csv")
+        parser.add_argument("--pseudo_images_dir", type=str, default=None)
+        parser.add_argument("--pseudo_csv", type=str, default=None)
 
         # General
         parser.add_argument("--num_workers", type=int, default=8)

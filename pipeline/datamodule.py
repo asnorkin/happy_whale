@@ -91,12 +91,12 @@ class HappyLightningDataModule(pl.LightningDataModule):
 
         # Train dataset
         train_transform = A.Compose(self.pre_transforms + self.augmentations + self.post_transforms, additional_targets=additional_targets)
-        self.train_dataset = BalancedHappyDataset(
+        self.train_dataset = HappyDataset(
             train_items,
             train_transform,
             load_all_images=self.hparams.all_images,
             load_random_image=self.hparams.random_image,
-            max_count=self.hparams.max_count,
+#            max_count=self.hparams.max_count,
         )
 
         # Val dataset
